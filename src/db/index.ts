@@ -12,3 +12,4 @@ export {
 } from './backup';
 export { migrate, MIGRATIONS, MigrationError, type Migration } from './migrations';
 export { appDataSchema } from './schema';
+export * as repo from './repository';
