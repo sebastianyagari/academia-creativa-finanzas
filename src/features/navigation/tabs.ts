@@ -1,6 +1,7 @@
 import type { IconName } from '../../components/Icon';
+import type { TabId } from '../../engine';
 
-export type TabId = 'inicio' | 'movimientos' | 'presupuesto' | 'metas' | 'deudas';
+export type { TabId };
 
 export interface Tab {
   id: TabId;
