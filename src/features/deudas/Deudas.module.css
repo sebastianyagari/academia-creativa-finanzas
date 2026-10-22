@@ -1,3 +1,20 @@
+.explainer {
+  background: var(--surface2);
+  border-radius: var(--radius);
+  padding: 12px;
+  font-size: 14px;
+  color: var(--fg);
+  font-weight: 400;
+}
+
+.explainer p {
+  margin: 0;
+}
+
+.explainer p + p {
+  margin-top: 6px;
+}
+
 .body {
   margin-top: 14px;
 }

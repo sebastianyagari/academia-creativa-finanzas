@@ -105,6 +105,7 @@ export function Deudas() {
                   onChange={(v) => void actions.updateSettings({ strategy: v })}
                 />
               </div>
+              <StrategyExplainer strategy={strategy} targetId={target} />
               <label htmlFor="f-extra">
                 Abono extra al mes
                 <MoneyInput
@@ -114,6 +115,10 @@ export function Deudas() {
                     if (v !== extraPayment) void actions.updateSettings({ extraPayment: v });
                   }}
                 />
+                <span className={s.hint}>
+                  Lo que puedes pagar además de las cuotas mínimas. Entre más abones, antes sales y
+                  menos intereses pagas.
+                </span>
               </label>
               <p className={s.hint}>
                 Las tasas se piden como efectiva anual (EA), como las publica tu banco. La app la
@@ -149,6 +154,44 @@ export function Deudas() {
         )}
       </div>
     </>
+  );
+}
+
+/** Qué hace cada estrategia, con la deuda de la persona donde va el abono extra. */
+function StrategyExplainer({
+  strategy,
+  targetId,
+}: {
+  strategy: Strategy;
+  targetId: string | null;
+}) {
+  const { data } = useStore();
+  const debt = data.debts.find((x) => x.id === targetId);
+  const detail = debt
+    ? strategy === 'avalancha'
+      ? `${String(debt.rateEA).replace('.', ',')} % EA`
+      : formatCOP(debtBalance(debt, data))
+    : null;
+  return (
+    <div className={d.explainer} aria-live="polite">
+      {strategy === 'avalancha' ? (
+        <p>
+          <b>Avalancha:</b> pagas la cuota mínima de todas tus deudas y todo lo que te sobra va a la
+          que tiene la <b>tasa más alta</b>. Es la forma de pagar <b>menos intereses</b>.
+        </p>
+      ) : (
+        <p>
+          <b>Bola de nieve:</b> pagas la cuota mínima de todas y todo lo que te sobra va a la{' '}
+          <b>deuda más pequeña</b>. Te quitas la primera deuda <b>más rápido</b>, y eso da impulso
+          para seguir.
+        </p>
+      )}
+      {debt && (
+        <p>
+          Con tu plan, el abono extra va a <b>{debt.name}</b> ({detail}).
+        </p>
+      )}
+    </div>
   );
 }
 
