@@ -1,0 +1,14 @@
+node_modules/
+dist/
+dev-dist/
+coverage/
+playwright-report/
+test-results/
+*.local
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+
+# Configuración local del entorno de Claude
+.claude/launch.json
