@@ -1,0 +1,12 @@
+{
+  "year": 2026,
+  "version": "2026.0",
+  "verifiedAt": null,
+  "sources": [],
+  "smmlv": null,
+  "auxilioTransporte": null,
+  "uvt": null,
+  "usuraEA": null,
+  "primaFechas": { "semestre1": "06-30", "semestre2": "12-20" },
+  "cesantias": { "consignacionFondo": "02-14", "interesesAnuales": 0.12, "pagoIntereses": "01-31" }
+}
