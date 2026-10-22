@@ -90,6 +90,11 @@ describe('base local', () => {
     expect(normalized(loaded)).toEqual(normalized(data));
     // Los movimientos salen ordenados por fecha.
     expect(loaded.transactions.map((t) => t.date)).toEqual(['2026-09-02', '2026-10-15']);
+    // Cuentas y categorías salen en su orden, no en el de sus ids (x-10 < x-2 por texto).
+    expect(loaded.accounts.map((a) => a.name)).toEqual(data.accounts.map((a) => a.name));
+    expect(loaded.categories.filter((c) => c.group === 'ingresos').map((c) => c.name)).toEqual(
+      data.categories.filter((c) => c.group === 'ingresos').map((c) => c.name),
+    );
   });
 
   it('reemplazar es todo o nada: un dato inválido no deja la base a medias', async () => {

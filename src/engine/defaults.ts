@@ -52,34 +52,49 @@ const DEFAULT_CATEGORIES: Record<Group, { names: string[]; other: string }> = {
 };
 
 function category(id: string, group: Group, name: string, extra: Partial<Category> = {}): Category {
-  return { id, group, name, budget: 0, isOther: false, isSystem: false, archived: false, ...extra };
+  return {
+    id,
+    group,
+    name,
+    budget: 0,
+    isOther: false,
+    isSystem: false,
+    archived: false,
+    order: 0,
+    ...extra,
+  };
 }
 
-/** Categorías precargadas para Colombia (SPEC 4.4). Cada grupo termina con su "Otros". */
+/**
+ * Categorías precargadas para Colombia (SPEC 4.4), en el orden de la SPEC.
+ * Cada grupo termina con su "Otros".
+ */
 export function defaultCategories(newId: IdFn): Category[] {
   const out: Category[] = [];
   for (const group of Object.keys(DEFAULT_CATEGORIES) as Group[]) {
     const { names, other } = DEFAULT_CATEGORIES[group];
-    for (const name of names) out.push(category(newId(), group, name));
+    const inGroup: Category[] = names.map((name) => category(newId(), group, name));
     if (group === 'gastos') {
-      out.push(
+      inGroup.push(
         category(INTEREST_CATEGORY_ID, 'gastos', 'Intereses y cuotas de manejo', {
           isSystem: true,
         }),
       );
     }
-    out.push(category(newId(), group, other, { isOther: true }));
+    inGroup.push(category(newId(), group, other, { isOther: true }));
+    out.push(...inGroup.map((c, order) => ({ ...c, order })));
   }
   return out;
 }
 
 export function defaultAccounts(newId: IdFn): Account[] {
-  return [
+  const accounts: Omit<Account, 'order'>[] = [
     { id: newId(), name: 'Efectivo', type: 'efectivo', openingBalance: 0, archived: false },
     { id: newId(), name: 'Nequi', type: 'billetera', openingBalance: 0, archived: false },
     { id: newId(), name: 'Daviplata', type: 'billetera', openingBalance: 0, archived: false },
     { id: newId(), name: 'Cuenta de ahorros', type: 'banco', openingBalance: 0, archived: false },
   ];
+  return accounts.map((a, order) => ({ ...a, order }));
 }
 
 export function defaultProfile(): Profile {

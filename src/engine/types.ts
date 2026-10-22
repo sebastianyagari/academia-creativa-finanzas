@@ -19,6 +19,8 @@ export interface Account {
   archived: boolean;
   /** Solo tarjeta_credito: Debt asociada (tasa EA, cuota mínima). */
   debtId?: string;
+  /** Posición en la lista de cuentas (menor = primero). Anexo D.23. */
+  order: number;
 }
 
 export interface Category {
@@ -34,6 +36,8 @@ export interface Category {
   /** Categoría de sistema, p. ej. "Intereses y cuotas de manejo". */
   isSystem: boolean;
   archived: boolean;
+  /** Posición dentro de su grupo (menor = primero); "Otros" va al final. Anexo D.23. */
+  order: number;
 }
 
 export interface Transaction {

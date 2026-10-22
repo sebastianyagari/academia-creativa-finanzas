@@ -121,6 +121,7 @@ interface Account {
   openingBalance: number;          // saldo inicial; para tarjeta_credito = deuda inicial (>= 0)
   archived: boolean;
   debtId?: string;                 // solo tarjeta_credito: Debt asociada (tasa EA, cuota mínima)
+  order: number;                   // posición en la lista de cuentas (Anexo D.23)
 }
 
 interface Category {
@@ -132,6 +133,7 @@ interface Category {
   isOther: boolean;                // "Otros": no se puede borrar ni renombrar
   isSystem: boolean;               // p. ej. "Intereses y cuotas de manejo"
   archived: boolean;
+  order: number;                   // posición dentro de su grupo; "Otros" siempre al final (Anexo D.23)
 }
 
 interface Transaction {
@@ -699,4 +701,9 @@ Tomadas con Sebastián antes de la Fase 0. Cuando una decisión cambia una secci
 19. CI en GitHub Actions; Sebastián ya tiene cuenta. El repositorio será privado.
 20. Commits firmados como `sebastianyagari` <sebastianyagari@gmail.com> (configuración local del repositorio).
 21. Logos: se usan los PNG de `/assets` (vertical, isotipo, horizontal, logotipo; todos #6A1B9A con fondo transparente). Mientras llegan los oficiales en blanco, se genera una versión blanca provisional para modo oscuro y fondos morados, marcada como provisional.
-22. El caso de regresión de 5.3 se verifica en la Fase 1 ejecutando el `sim()` del prototipo; si los intereses no coinciden al peso con los valores escritos, se corrige el documento con la salida real y se avisa antes.
+22. El caso de regresión de 5.3 se verifica en la Fase 1 ejecutando el `sim()` del prototipo; si los intereses no coinciden al peso con los valores escritos, se corrige el documento con la salida real y se avisa antes. *(Verificado en la Fase 1: coincide al peso.)*
+
+**Agregado en la Fase 1**
+
+23. `Account` y `Category` tienen un campo `order` (entero) para respetar el orden de la sección 4.4 y permitir reordenar. Las cuentas forman una lista; las categorías se ordenan dentro de su grupo. "Otros" va siempre al final de su grupo y no se mueve; una categoría nueva entra justo antes de "Otros". Como la v1 aún no se publica, entra en `schemaVersion` 1.
+24. Reglas de cálculo interpretadas en la Fase 1: las cuentas archivadas siguen sumando al patrimonio (la plata existe) y las deudas archivadas no; el abono extra solo entra al presupuesto si hay un crédito u otro con saldo; un saldo a favor en la tarjeta suma al patrimonio y la deuda se muestra en 0; un interés registrado mayor que el pago se limita al monto del pago.

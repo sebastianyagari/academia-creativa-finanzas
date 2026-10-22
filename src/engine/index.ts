@@ -3,6 +3,7 @@ export * from './types';
 export * from './money';
 export * from './dates';
 export * from './defaults';
+export * from './order';
 export * from './balances';
 export * from './periods';
 export * from './totals';

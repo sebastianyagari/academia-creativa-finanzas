@@ -24,8 +24,16 @@ export function makeData(overrides: Partial<AppData> = {}): AppData {
       type: 'banco',
       openingBalance: 1_000_000,
       archived: false,
+      order: 0,
     },
-    { id: 'nequi', name: 'Nequi', type: 'billetera', openingBalance: 200_000, archived: false },
+    {
+      id: 'nequi',
+      name: 'Nequi',
+      type: 'billetera',
+      openingBalance: 200_000,
+      archived: false,
+      order: 1,
+    },
     {
       id: 'visa',
       name: 'Tarjeta Visa',
@@ -33,6 +41,7 @@ export function makeData(overrides: Partial<AppData> = {}): AppData {
       openingBalance: 500_000,
       archived: false,
       debtId: 'deuda-visa',
+      order: 2,
     },
   ];
   const debts: Debt[] = [

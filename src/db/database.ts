@@ -5,6 +5,7 @@
 import Dexie, { type EntityTable } from 'dexie';
 import {
   CURRENT_SCHEMA_VERSION,
+  sortByOrder,
   type Account,
   type AppData,
   type Category,
@@ -79,8 +80,8 @@ export async function loadAll(db: FinanzasDB): Promise<AppData> {
         throw new Error('La base no está inicializada');
       }
       return {
-        accounts: await db.accounts.toArray(),
-        categories: await db.categories.toArray(),
+        accounts: sortByOrder(await db.accounts.toArray()),
+        categories: sortByOrder(await db.categories.toArray()),
         transactions: await db.transactions.orderBy('date').toArray(),
         recurrings: await db.recurrings.toArray(),
         recurringSkips: await db.recurringSkips.toArray(),

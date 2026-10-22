@@ -9,14 +9,16 @@
         "name": "Bancolombia ahorros",
         "type": "banco",
         "openingBalance": 900000,
-        "archived": false
+        "archived": false,
+        "order": 0
       },
       {
         "id": "a-nequi",
         "name": "Nequi",
         "type": "billetera",
         "openingBalance": 150000,
-        "archived": false
+        "archived": false,
+        "order": 1
       },
       {
         "id": "a-visa",
@@ -24,7 +26,8 @@
         "type": "tarjeta_credito",
         "openingBalance": 3200000,
         "archived": false,
-        "debtId": "d-visa"
+        "debtId": "d-visa",
+        "order": 2
       }
     ],
     "categories": [
@@ -35,7 +38,8 @@
         "budget": 3400000,
         "isOther": false,
         "isSystem": false,
-        "archived": false
+        "archived": false,
+        "order": 0
       },
       {
         "id": "c-otros-ing",
@@ -44,7 +48,8 @@
         "budget": 0,
         "isOther": true,
         "isSystem": false,
-        "archived": false
+        "archived": false,
+        "order": 1
       },
       {
         "id": "c-arriendo",
@@ -54,7 +59,8 @@
         "dueDay": 5,
         "isOther": false,
         "isSystem": false,
-        "archived": false
+        "archived": false,
+        "order": 0
       },
       {
         "id": "c-otras-fac",
@@ -63,7 +69,8 @@
         "budget": 0,
         "isOther": true,
         "isSystem": false,
-        "archived": false
+        "archived": false,
+        "order": 1
       },
       {
         "id": "c-mercado",
@@ -72,7 +79,8 @@
         "budget": 460000,
         "isOther": false,
         "isSystem": false,
-        "archived": false
+        "archived": false,
+        "order": 0
       },
       {
         "id": "sistema-intereses",
@@ -81,7 +89,8 @@
         "budget": 0,
         "isOther": false,
         "isSystem": true,
-        "archived": false
+        "archived": false,
+        "order": 1
       },
       {
         "id": "c-otros-gas",
@@ -90,7 +99,8 @@
         "budget": 0,
         "isOther": true,
         "isSystem": false,
-        "archived": false
+        "archived": false,
+        "order": 2
       },
       {
         "id": "c-otras-inv",
@@ -99,7 +109,8 @@
         "budget": 0,
         "isOther": true,
         "isSystem": false,
-        "archived": false
+        "archived": false,
+        "order": 0
       }
     ],
     "transactions": [
@@ -165,7 +176,10 @@
         "accountId": "a-banco",
         "categoryId": "c-salario",
         "note": "Nómina",
-        "schedule": { "type": "quincenal", "days": [15, 31] },
+        "schedule": {
+          "type": "quincenal",
+          "days": [15, 31]
+        },
         "active": true,
         "startMonth": "2026-10"
       },
@@ -176,12 +190,22 @@
         "accountId": "a-banco",
         "categoryId": "c-salario",
         "note": "Prima de junio",
-        "schedule": { "type": "anual", "month": 6, "day": 30 },
+        "schedule": {
+          "type": "anual",
+          "month": 6,
+          "day": 30
+        },
         "active": true,
         "startMonth": "2026-10"
       }
     ],
-    "recurringSkips": [{ "recurringId": "r-nomina", "month": "2026-09", "day": 30 }],
+    "recurringSkips": [
+      {
+        "recurringId": "r-nomina",
+        "month": "2026-09",
+        "day": 30
+      }
+    ],
     "goals": [
       {
         "id": "g-emergencia",

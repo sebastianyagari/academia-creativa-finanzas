@@ -27,6 +27,7 @@ export const accountSchema = z.object({
   openingBalance: money,
   archived: z.boolean(),
   debtId: id.optional(),
+  order: z.number().int(),
 });
 
 export const categorySchema = z.object({
@@ -38,6 +39,7 @@ export const categorySchema = z.object({
   isOther: z.boolean(),
   isSystem: z.boolean(),
   archived: z.boolean(),
+  order: z.number().int(),
 });
 
 export const transactionSchema = z.object({
