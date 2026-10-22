@@ -19,6 +19,7 @@ npm run dev
 ```
 
 Abre la dirección que muestra la terminal (normalmente http://localhost:5173).
+
 ### Probar en tu celular
 
 Con el celular y el computador en la misma red Wi-Fi:
