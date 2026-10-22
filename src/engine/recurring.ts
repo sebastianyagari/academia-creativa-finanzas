@@ -78,6 +78,61 @@ export function transactionFromPending(
   return tx;
 }
 
+/**
+ * "Repetir cada mes" al registrar (SPEC 5.4): crea la plantilla mensual el mismo
+ * día y enlaza el movimiento a ella, para que este mes no aparezca como pendiente.
+ */
+export function repeatMonthly(
+  tx: Transaction,
+  recurringId: string,
+): { transaction: Transaction; recurring: Recurring } {
+  const recurring: Recurring = {
+    id: recurringId,
+    kind: tx.kind,
+    amount: tx.amount,
+    accountId: tx.accountId,
+    schedule: { type: 'mensual', day: dayOf(tx.date) },
+    active: true,
+    startMonth: monthOf(tx.date),
+  };
+  if (tx.toAccountId) recurring.toAccountId = tx.toAccountId;
+  if (tx.categoryId) recurring.categoryId = tx.categoryId;
+  if (tx.goalId) recurring.goalId = tx.goalId;
+  if (tx.debtId) recurring.debtId = tx.debtId;
+  if (tx.note) recurring.note = tx.note;
+  return {
+    transaction: { ...tx, fromRecurringId: recurringId, scheduledDate: tx.date },
+    recurring,
+  };
+}
+
+const MONTH_NAMES = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+];
+
+function dayText(day: number): string {
+  return day >= 31 ? 'el último día' : `el día ${day}`;
+}
+
+/** Descripción del horario: "Cada mes, el día 5", "Cada quincena: el día 15 y el último día". */
+export function describeSchedule(recurring: Recurring): string {
+  const s = recurring.schedule;
+  if (s.type === 'mensual') return `Cada mes, ${dayText(s.day)}`;
+  if (s.type === 'quincenal') return `Cada quincena: ${dayText(s.days[0])} y ${dayText(s.days[1])}`;
+  return `Cada año, el ${s.day} de ${MONTH_NAMES[s.month - 1]}`;
+}
+
 /** "Omitir este mes". */
 export function skipFor(pending: Pending): { recurringId: string; month: string; day: number } {
   return {
