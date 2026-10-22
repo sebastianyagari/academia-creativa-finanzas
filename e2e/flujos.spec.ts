@@ -47,6 +47,8 @@ test('el registro muestra errores claros y no guarda', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Registrar movimiento' }).click();
   const sheet = page.getByRole('dialog', { name: 'Registrar movimiento' });
+  // La app propone la última categoría usada; se deja vacía a propósito.
+  await sheet.getByLabel('Categoría').selectOption({ label: 'Elige una categoría' });
   await sheet.getByRole('button', { name: 'Guardar' }).click();
   await expect(sheet.getByRole('alert')).toContainText('Escribe un monto mayor a 0.');
   await expect(sheet.getByRole('alert')).toContainText('Elige una categoría.');
