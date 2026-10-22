@@ -87,9 +87,9 @@ describe('reordenar (Anexo D.23)', () => {
     const mercado = data.categories.find((c) => c.name === 'Mercado')!;
     const moved = moveCategory(data.categories, mercado.id, 3);
     expect(names(categoriesOf(moved, 'gastos')).slice(0, 4)).toEqual([
+      'Vivienda o arriendo',
       'Transporte',
       'Comida fuera',
-      'Salud',
       'Mercado',
     ]);
     expect(categoriesOf(moved, 'facturas')).toEqual(categoriesOf(data.categories, 'facturas'));

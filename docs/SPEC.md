@@ -248,7 +248,7 @@ Cada grupo tiene "Otros" (no se borra). Las demás se pueden renombrar, archivar
 
 - **Ingresos:** Salario, Honorarios o trabajo independiente, Ventas, Prima de servicios, Cesantías e intereses, Ingresos extra, Otros ingresos.
 - **Facturas:** Arriendo o cuota de vivienda, Servicios públicos, Internet y celular, Suscripciones, Seguros, Educación, Administración, Otras facturas.
-- **Gastos:** Mercado, Transporte, Comida fuera, Salud, Ocio, Ropa, Mascotas, Gastos hormiga, Impuestos y GMF (4x1000), Intereses y cuotas de manejo (sistema), Otros gastos.
+- **Gastos:** Vivienda o arriendo, Mercado, Transporte, Comida fuera, Salud, Ocio, Ropa, Mascotas, Gastos hormiga, Impuestos y GMF (4x1000), Intereses y cuotas de manejo (sistema), Otros gastos.
 - **Inversiones:** CDT, Fondo de inversión, Acciones o ETF, Otras inversiones.
 
 Ahorros y deudas no usan categorías: se manejan con metas y deudas.
@@ -715,4 +715,5 @@ Tomadas con Sebastián antes de la Fase 0. Cuando una decisión cambia una secci
 27. El onboarding es idempotente: repetirlo actualiza la misma cuenta (por id), el mismo ingreso programado, la misma prima o cesantía (por categoría y mes) y la misma meta (por nombre); nunca borra movimientos. Las cuentas por defecto que la persona desmarca se archivan solo si no tienen saldo ni movimientos.
 28. Primeros pasos se calculan desde los datos (primer gasto o factura, algún presupuesto de salidas, algún movimiento repetido que no sea ingreso). El paso "haz tu respaldo" se agrega en la Fase 5. `Profile.firstStepsDone` queda reservado y no se usa.
 29. El almacenamiento persistente (`navigator.storage.persist()`) se pide al terminar el onboarding (SPEC 9.4); el estado se mostrará en Ajustes en la Fase 5.
+30. A partir de la prueba en celular: la categoría "Vivienda o arriendo" se agrega también en Gastos (primera de la lista), además de "Arriendo o cuota de vivienda" en Facturas, para quien registra el arriendo como gasto. La de Facturas sigue siendo la que tiene día de vencimiento y aparece en "Facturas del mes".
 

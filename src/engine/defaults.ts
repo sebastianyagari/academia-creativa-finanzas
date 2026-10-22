@@ -34,6 +34,9 @@ const DEFAULT_CATEGORIES: Record<Group, { names: string[]; other: string }> = {
   },
   gastos: {
     names: [
+      // También existe "Arriendo o cuota de vivienda" en Facturas; esta es para quien
+      // lo busca como gasto (Anexo D.30).
+      'Vivienda o arriendo',
       'Mercado',
       'Transporte',
       'Comida fuera',
