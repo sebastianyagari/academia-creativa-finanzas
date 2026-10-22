@@ -3,7 +3,7 @@ import { Icon } from '../../components/Icon';
 import { useToast } from '../../components/Toast';
 import { Card, ConfirmButton, Segmented } from '../../components/ui';
 import s from '../../components/ui.module.css';
-import type { Settings } from '../../engine';
+import type { Profile, Settings } from '../../engine';
 import { rulesFor } from '../../rules';
 import { useNav } from '../../state/nav';
 import { useStore } from '../../state/store';
@@ -36,20 +36,85 @@ export function Ajustes() {
       </header>
       <div className={`${s.grid} ${s.two}`}>
         <Card title="Perfil">
-          <label className={s.field} htmlFor="f-uname">
-            ¿Cómo te llamas?
-            <input
-              id="f-uname"
-              className={s.input}
-              maxLength={30}
-              defaultValue={data.profile.name}
-              placeholder="Tu nombre"
-              onBlur={(e) => {
-                const name = e.target.value.trim();
-                if (name !== data.profile.name) void actions.updateProfile({ name });
-              }}
-            />
-          </label>
+          <div className={s.stack}>
+            <label className={s.field} htmlFor="f-uname">
+              ¿Cómo te llamas?
+              <input
+                id="f-uname"
+                className={s.input}
+                maxLength={30}
+                defaultValue={data.profile.name}
+                placeholder="Tu nombre"
+                onBlur={(e) => {
+                  const name = e.target.value.trim();
+                  if (name !== data.profile.name) void actions.updateProfile({ name });
+                }}
+              />
+            </label>
+            <div className={s.pair}>
+              <label className={s.field} htmlFor="f-itype">
+                Tus ingresos
+                <select
+                  id="f-itype"
+                  className={s.input}
+                  value={data.profile.incomeType}
+                  onChange={(e) =>
+                    void actions.updateProfile({
+                      incomeType: e.target.value as Profile['incomeType'],
+                    })
+                  }
+                >
+                  <option value="empleado">Empleado</option>
+                  <option value="independiente">Independiente</option>
+                  <option value="ambos">Ambos</option>
+                </select>
+              </label>
+              <label className={s.field} htmlFor="f-freq">
+                Te pagan
+                <select
+                  id="f-freq"
+                  className={s.input}
+                  value={data.profile.payFrequency}
+                  onChange={(e) =>
+                    void actions.updateProfile({
+                      payFrequency: e.target.value as Profile['payFrequency'],
+                    })
+                  }
+                >
+                  <option value="mensual">Una vez al mes</option>
+                  <option value="quincenal">Cada quincena</option>
+                </select>
+              </label>
+            </div>
+            <label className={s.field} htmlFor="f-goal">
+              Lo que quieres lograr primero
+              <select
+                id="f-goal"
+                className={s.input}
+                value={data.profile.mainGoal}
+                onChange={(e) =>
+                  void actions.updateProfile({ mainGoal: e.target.value as Profile['mainGoal'] })
+                }
+              >
+                <option value="ordenar">Ordenar mis gastos</option>
+                <option value="ahorrar">Ahorrar para algo</option>
+                <option value="deudas">Pagar mis deudas</option>
+                <option value="emergencia">Fondo de emergencia</option>
+              </select>
+            </label>
+            <p className={s.hint}>
+              Cambiar la frecuencia solo cambia cómo ves Inicio. Para cambiar tus ingresos
+              programados, repite la configuración o edítalos en “Movimientos que se repiten”.
+            </p>
+            <button
+              type="button"
+              className={`${s.btn} ${s.line}`}
+              onClick={() => nav.setRepeatingOnboarding(true)}
+            >
+              Repetir la configuración inicial
+            </button>
+            <p className={s.hint}>No borra tus datos: actualiza cuentas, ingresos y metas.</p>
+          </div>
         </Card>
         <Card title="Tema">
           <Segmented

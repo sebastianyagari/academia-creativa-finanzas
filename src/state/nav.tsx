@@ -25,6 +25,9 @@ export type SheetState =
 
 export type Screen = TabId | 'ajustes';
 
+/** Vista de Inicio en modo quincenal (SPEC 5.5): 0 = mes completo. */
+export type QuincenaView = 0 | 1 | 2;
+
 interface NavValue {
   screen: Screen;
   setScreen(screen: Screen): void;
@@ -32,6 +35,11 @@ interface NavValue {
   setMonth(month: string): void;
   period: PeriodKind;
   setPeriod(period: PeriodKind): void;
+  quincena: QuincenaView;
+  setQuincena(view: QuincenaView): void;
+  /** Onboarding repetido desde Ajustes (sobre los datos actuales). */
+  repeatingOnboarding: boolean;
+  setRepeatingOnboarding(value: boolean): void;
   sheet: SheetState | null;
   openSheet(sheet: SheetState): void;
   closeSheet(): void;
@@ -47,6 +55,8 @@ export function NavProvider({ children }: { children: ReactNode }) {
   const [month, setMonth] = useState(currentMonth);
   const [period, setPeriod] = useState<PeriodKind>(() => defaultPeriod(data.transactions));
   const [sheet, setSheet] = useState<SheetState | null>(null);
+  const [quincena, setQuincena] = useState<QuincenaView>(0);
+  const [repeatingOnboarding, setRepeatingOnboarding] = useState(false);
 
   const value = useMemo<NavValue>(
     () => ({
@@ -59,11 +69,15 @@ export function NavProvider({ children }: { children: ReactNode }) {
       setMonth,
       period,
       setPeriod,
+      quincena,
+      setQuincena,
+      repeatingOnboarding,
+      setRepeatingOnboarding,
       sheet,
       openSheet: setSheet,
       closeSheet: () => setSheet(null),
     }),
-    [screen, month, period, sheet],
+    [screen, month, period, quincena, repeatingOnboarding, sheet],
   );
   return <NavContext.Provider value={value}>{children}</NavContext.Provider>;
 }

@@ -13,9 +13,12 @@ import {
   type ReactNode,
 } from 'react';
 import { FinanzasDB, isInitialized, loadAll, replaceAll, repo } from '../db';
+import { rulesFor } from '../rules';
 import {
+  applyOnboarding,
   createDefaultData,
   monthOf,
+  type OnboardingAnswers,
   todayInColombia,
   type Account,
   type AppData,
@@ -50,6 +53,8 @@ export interface Actions {
   deleteDebtWithPayments(id: string): Promise<void>;
   updateProfile(changes: Partial<Profile>): Promise<void>;
   updateSettings(changes: Partial<Settings>): Promise<void>;
+  /** Aplica las respuestas del onboarding (primera vez o repetido desde Ajustes). */
+  completeOnboarding(answers: OnboardingAnswers): Promise<void>;
   /** Reemplaza todo por los datos de ejemplo. */
   loadDemo(): Promise<void>;
   /** Borra todo y deja cuentas y categorías por defecto; conserva el nombre. */
@@ -71,6 +76,18 @@ let sharedDb: FinanzasDB | null = null;
 function getDb(): FinanzasDB {
   sharedDb ??= new FinanzasDB();
   return sharedDb;
+}
+
+/**
+ * Pide al navegador que no borre los datos por falta de espacio (SPEC 9.4).
+ * Se llama al terminar el onboarding; si el navegador no lo permite, no pasa nada.
+ */
+async function requestPersistentStorage(): Promise<void> {
+  try {
+    await navigator.storage?.persist?.();
+  } catch {
+    // Sin soporte: el recordatorio de respaldo (Fase 5) cubre este caso.
+  }
 }
 
 function applyTheme(theme: Settings['theme']) {
@@ -100,8 +117,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     (async () => {
       const db = getDb();
-      // Primera vez: datos de ejemplo, como el prototipo. El onboarding llega en la Fase 4.
-      if (!(await isInitialized(db))) await replaceAll(db, createDemoData(todayInColombia()));
+      // Primera vez: cuentas y categorías por defecto, sin onboarding hecho. La app
+      // muestra la bienvenida, donde se elige configurar o ver el ejemplo.
+      if (!(await isInitialized(db))) await replaceAll(db, createDefaultData());
       const loaded = await loadAll(db);
       if (!cancelled) setData(loaded);
     })().catch((e: unknown) => {
@@ -144,6 +162,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateProfile: (changes) => run((db) => repo.putProfile(db, { ...data.profile, ...changes })),
       updateSettings: (changes) =>
         run((db) => repo.putSettings(db, { ...data.settings, ...changes })),
+      completeOnboarding: async (answers) => {
+        await run(async (db) => {
+          const now = todayInColombia();
+          const current = await loadAll(db);
+          const rules = rulesFor(Number(now.slice(0, 4))).rules;
+          await replaceAll(
+            db,
+            applyOnboarding(current, answers, now, rules, () => crypto.randomUUID()),
+          );
+        });
+        await requestPersistentStorage();
+      },
       loadDemo: () =>
         run((db) => {
           const demo = createDemoData(todayInColombia());

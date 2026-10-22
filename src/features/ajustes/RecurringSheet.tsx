@@ -4,7 +4,7 @@ import { MoneyInput } from '../../components/MoneyInput';
 import { Sheet } from '../../components/Sheet';
 import { useToast } from '../../components/Toast';
 import s from '../../components/ui.module.css';
-import type { Recurring, Schedule } from '../../engine';
+import { APPROX_LABEL, type Recurring, type Schedule } from '../../engine';
 import { useNav } from '../../state/nav';
 import { useStore } from '../../state/store';
 import { FormErrors } from '../registrar/TransactionSheet';
@@ -58,6 +58,10 @@ export function RecurringSheet({ id }: { id: string }) {
   const [errors, setErrors] = useState<string[]>([]);
   if (!recurring) return null;
 
+  // Prima y cesantías son montos sugeridos por la app (SPEC 7.2).
+  const categoryName = data.categories.find((c) => c.id === recurring.categoryId)?.name;
+  const isLegalEstimate =
+    categoryName === 'Prima de servicios' || categoryName === 'Cesantías e intereses';
   const accounts = accountsFor(data, recurring.kind, recurring.accountId).filter(
     (a) => a.id !== recurring.toAccountId,
   );
@@ -165,6 +169,7 @@ export function RecurringSheet({ id }: { id: string }) {
         <p className={s.hint}>
           Los cambios aplican a los próximos pendientes; lo ya registrado no cambia.
         </p>
+        {isLegalEstimate && <p className={s.hint}>{APPROX_LABEL}</p>}
         <FormErrors errors={errors} />
         <button type="submit" className={s.btn}>
           Guardar cambios

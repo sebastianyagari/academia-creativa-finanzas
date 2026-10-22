@@ -13,8 +13,9 @@ import { TABS } from './features/navigation/tabs';
 import { Presupuesto } from './features/presupuesto/Presupuesto';
 import { ContributionSheet, DebtPaymentSheet } from './features/registrar/SimpleMovementSheet';
 import { TransactionSheet } from './features/registrar/TransactionSheet';
+import { Onboarding } from './features/onboarding/Onboarding';
 import { NavProvider, useNav, type SheetState } from './state/nav';
-import { StoreProvider } from './state/store';
+import { StoreProvider, useStore } from './state/store';
 import styles from './App.module.css';
 
 export function App() {
@@ -39,7 +40,12 @@ const SCREENS = {
 };
 
 function Shell() {
+  const { data } = useStore();
   const nav = useNav();
+  // Primera vez (sin ejemplo cargado) o repetido desde Ajustes (SPEC 6.1).
+  if ((!data.profile.onboardingDone && !data.settings.isDemo) || nav.repeatingOnboarding) {
+    return <Onboarding repeat={nav.repeatingOnboarding} />;
+  }
   const Screen = SCREENS[nav.screen];
   return (
     <>

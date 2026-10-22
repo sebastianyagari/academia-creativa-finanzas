@@ -20,9 +20,11 @@ import {
   categoriesOf,
   categoryActuals,
   dayOf,
+  firstSteps,
   formatCOP,
   goalSaved,
   monthRange,
+  quincenaRange,
   monthsElapsed,
   netWorth,
   periodMonths,
@@ -35,14 +37,16 @@ import {
   totalsByMonth,
   totalsFor,
   type AppData,
+  type FirstStep,
   type GroupBudgets,
   type PeriodKind,
   type Totals,
 } from '../../engine';
-import { useNav } from '../../state/nav';
+import { useNav, type QuincenaView } from '../../state/nav';
 import { useStore } from '../../state/store';
 import { Pendientes } from '../registrar/Pendientes';
 import { ScreenTop } from '../shared/ScreenTop';
+import f from './FirstSteps.module.css';
 import h from './Hero.module.css';
 
 const PERIODS = [
@@ -50,6 +54,70 @@ const PERIODS = [
   ['6m', '6 meses'],
   ['anio', 'Año'],
 ] as const satisfies readonly (readonly [PeriodKind, string])[];
+
+/** Modo quincenal (SPEC 5.5): solo cambia lo que se muestra, no los datos. */
+const QUINCENAS = [
+  ['0', 'Mes completo'],
+  ['1', 'Quincena 1'],
+  ['2', 'Quincena 2'],
+] as const;
+
+/** Tarjeta "Primeros pasos" (SPEC 6.1): desaparece al completarse o al ocultarla. */
+function FirstSteps() {
+  const { data, actions } = useStore();
+  const nav = useNav();
+  if (!data.profile.onboardingDone || data.settings.isDemo || data.profile.firstStepsDismissed) {
+    return null;
+  }
+  const steps = firstSteps(data);
+  if (steps.every((st) => st.done)) return null;
+  const go: Record<FirstStep['id'], () => void> = {
+    'primer-gasto': () => nav.openSheet({ type: 'tx', kind: 'gasto' }),
+    presupuesto: () => nav.setScreen('presupuesto'),
+    repetido: () => nav.openSheet({ type: 'tx', kind: 'factura' }),
+  };
+  const done = steps.filter((st) => st.done).length;
+  return (
+    <section className={`${s.card} ${f.firstSteps}`} aria-label="Primeros pasos">
+      <div className={s.cardHead}>
+        <h2>Primeros pasos</h2>
+        <span className={s.sub}>
+          {done} de {steps.length}
+        </span>
+      </div>
+      <ol className={f.steps}>
+        {steps.map((st) => (
+          <li key={st.id} className={st.done ? f.done : ''}>
+            <span className={f.mark} aria-hidden="true">
+              {st.done ? '✓' : ''}
+            </span>
+            <span className={`${s.grow} ${f.text}`}>
+              {st.label}
+              {st.done && <span className="visually-hidden"> (hecho)</span>}
+              {st.id === 'repetido' && !st.done && (
+                <span className={s.hint}>
+                  Registra el arriendo o un servicio con “Repetir cada mes”.
+                </span>
+              )}
+            </span>
+            {!st.done && (
+              <button type="button" className={`${s.btn} ${s.ghost} ${s.sm}`} onClick={go[st.id]}>
+                Ir
+              </button>
+            )}
+          </li>
+        ))}
+      </ol>
+      <button
+        type="button"
+        className={f.hide}
+        onClick={() => void actions.updateProfile({ firstStepsDismissed: true })}
+      >
+        Ocultar primeros pasos
+      </button>
+    </section>
+  );
+}
 
 export function Inicio() {
   const { data } = useStore();
@@ -59,6 +127,7 @@ export function Inicio() {
   return (
     <>
       <ScreenTop title={data.profile.name ? `Hola, ${data.profile.name}` : 'Mis finanzas'} />
+      <FirstSteps />
       <Segmented label="Período" options={PERIODS} value={nav.period} onChange={nav.setPeriod} />
       <MonthBar
         label={
@@ -71,6 +140,14 @@ export function Inicio() {
         onPrev={() => nav.setMonth(addMonths(nav.month, -step))}
         onNext={() => nav.setMonth(addMonths(nav.month, step))}
       />
+      {nav.period === 'mes' && data.profile.payFrequency === 'quincenal' && (
+        <Segmented
+          label="Quincena"
+          options={QUINCENAS}
+          value={String(nav.quincena) as '0' | '1' | '2'}
+          onChange={(v) => nav.setQuincena(Number(v) as QuincenaView)}
+        />
+      )}
       {nav.period === 'mes' ? <MonthView /> : <PeriodView months={months} />}
     </>
   );
@@ -128,14 +205,19 @@ function MonthView() {
   const { data, currentMonth } = useStore();
   const nav = useNav();
   const m = nav.month;
-  const range = monthRange(m);
+  // Quincena: lo real de la quincena contra el presupuesto mensual (SPEC 5.5).
+  const q = data.profile.payFrequency === 'quincenal' ? nav.quincena : 0;
+  const range = q ? quincenaRange(m, q) : monthRange(m);
   const totals = totalsFor(data.transactions, range);
   const { budgets, unassigned } = budgetSummary(data, currentMonth);
   const check = spendingCheck(totals, budgets);
+  const where = q
+    ? `la quincena ${q} de ${monthLabel(m).toLowerCase()}`
+    : monthLabel(m).toLowerCase();
 
   const hero = (
     <section className={h.hero}>
-      <div className={h.label}>Te queda en {monthLabel(m).toLowerCase()}</div>
+      <div className={h.label}>Te queda en {where}</div>
       <div className={`${h.big} ${totals.balance < 0 ? h.negative : ''}`}>
         {formatCOP(totals.balance)}
       </div>
@@ -188,7 +270,7 @@ function MonthView() {
       <div className={s.span2}>{hero}</div>
       {/* Inicio muestra solo los pendientes del mes actual (Anexo D.10). */}
       {m === currentMonth && <Pendientes month={m} span2 />}
-      <Bills month={m} />
+      <Bills month={m} quincena={q} />
       <Card title="A dónde va mi dinero">
         <Donut slices={donutSlices(totals)} />
       </Card>
@@ -204,12 +286,14 @@ function MonthView() {
 }
 
 /** Facturas del mes con su estado (SPEC 6.2). */
-function Bills({ month: m }: { month: string }) {
+function Bills({ month: m, quincena }: { month: string; quincena: QuincenaView }) {
   const { data, today, currentMonth } = useStore();
   const nav = useNav();
   const actuals = categoryActuals(data.transactions, monthRange(m));
   const bills = categoriesOf(data.categories, 'facturas')
     .filter((c) => c.dueDay && !c.archived)
+    // Cada factura va a la quincena de su día de vencimiento (SPEC 5.5).
+    .filter((c) => !quincena || (quincena === 1 ? c.dueDay! <= 15 : c.dueDay! > 15))
     .sort((a, b) => a.dueDay! - b.dueDay!);
   const day = dayOf(today);
   return (

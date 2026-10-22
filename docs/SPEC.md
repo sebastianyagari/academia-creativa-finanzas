@@ -707,3 +707,12 @@ Tomadas con Sebastián antes de la Fase 0. Cuando una decisión cambia una secci
 
 23. `Account` y `Category` tienen un campo `order` (entero) para respetar el orden de la sección 4.4 y permitir reordenar. Las cuentas forman una lista; las categorías se ordenan dentro de su grupo. "Otros" va siempre al final de su grupo y no se mueve; una categoría nueva entra justo antes de "Otros". Como la v1 aún no se publica, entra en `schemaVersion` 1.
 24. Reglas de cálculo interpretadas en la Fase 1: las cuentas archivadas siguen sumando al patrimonio (la plata existe) y las deudas archivadas no; el abono extra solo entra al presupuesto si hay un crédito u otro con saldo; un saldo a favor en la tarjeta suma al patrimonio y la deuda se muestra en 0; un interés registrado mayor que el pago se limita al monto del pago.
+
+**Agregado en la Fase 4**
+
+25. Primer uso: bienvenida con "Empezar" (onboarding), "Ver con datos de ejemplo" y "Saltar y empezar sin configurar". Desde el ejemplo, "Empezar con mis datos" lleva al onboarding.
+26. Montos sugeridos (siempre editables y marcados "Aproximado. Verifica con tu empleador o contador."): prima por semestre = medio mes de ingreso, más medio auxilio de transporte solo si `smmlv` y `auxilioTransporte` del archivo de parámetros no son `null` y el ingreso es de hasta 2 SMMLV; intereses de cesantías = `interesesAnuales` × un mes de ingreso, programados siempre para empleados (los paga el empleador aunque las cesantías vayan al fondo); cesantías = un mes de ingreso, solo si la persona las recibe. Fondo de emergencia sugerido: tres meses de ingreso.
+27. El onboarding es idempotente: repetirlo actualiza la misma cuenta (por id), el mismo ingreso programado, la misma prima o cesantía (por categoría y mes) y la misma meta (por nombre); nunca borra movimientos. Las cuentas por defecto que la persona desmarca se archivan solo si no tienen saldo ni movimientos.
+28. Primeros pasos se calculan desde los datos (primer gasto o factura, algún presupuesto de salidas, algún movimiento repetido que no sea ingreso). El paso "haz tu respaldo" se agrega en la Fase 5. `Profile.firstStepsDone` queda reservado y no se usa.
+29. El almacenamiento persistente (`navigator.storage.persist()`) se pide al terminar el onboarding (SPEC 9.4); el estado se mostrará en Ajustes en la Fase 5.
+
