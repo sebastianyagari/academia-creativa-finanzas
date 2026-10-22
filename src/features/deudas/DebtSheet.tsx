@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { newId } from '../../engine/id';
 import { MoneyInput } from '../../components/MoneyInput';
 import { Sheet } from '../../components/Sheet';
 import { useToast } from '../../components/Toast';
@@ -59,7 +60,7 @@ export function DebtSheet({ editId }: { editId?: string }) {
       return;
     }
     const debt: Debt = {
-      id: editing?.id ?? crypto.randomUUID(),
+      id: editing?.id ?? newId(),
       name: name.trim(),
       type: isCard ? 'tarjeta_credito' : type,
       // Saldo inicial = lo que se debe hoy + el capital ya abonado.

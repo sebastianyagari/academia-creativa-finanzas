@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { newId } from '../../engine/id';
 import { Icon } from '../../components/Icon';
 import { MoneyInput } from '../../components/MoneyInput';
 import { useToast } from '../../components/Toast';
@@ -150,13 +151,13 @@ function NewAccount() {
     const order = nextAccountOrder(data.accounts);
     if (isCard) {
       const card = createCard({ name: trimmed, currentDebt: debt, rateEA, minPayment, order }, () =>
-        crypto.randomUUID(),
+        newId(),
       );
       await actions.createCard(card.account, card.debt);
       toast('Tarjeta agregada. También aparece en Deudas.');
     } else {
       await actions.saveAccounts([
-        { id: crypto.randomUUID(), name: trimmed, type, openingBalance: 0, archived: false, order },
+        { id: newId(), name: trimmed, type, openingBalance: 0, archived: false, order },
       ]);
       toast('Cuenta agregada');
     }

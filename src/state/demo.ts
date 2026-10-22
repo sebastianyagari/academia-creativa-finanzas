@@ -16,6 +16,7 @@ import {
   type Recurring,
   type Transaction,
 } from '../engine';
+import { newId as generateId } from '../engine/id';
 
 /** Generador pseudoaleatorio con semilla: el ejemplo es siempre el mismo. */
 function rng(seed: number): () => number {
@@ -53,10 +54,7 @@ const NOTES: Record<string, string[]> = {
   'Gastos hormiga': ['Café', 'Empanadas', 'Helado'],
 };
 
-export function createDemoData(
-  today: string,
-  newId: () => string = () => crypto.randomUUID(),
-): AppData {
+export function createDemoData(today: string, newId: () => string = generateId): AppData {
   const base = createDefaultData(newId);
   const r = rng(11);
   const current = monthOf(today);

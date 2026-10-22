@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { newId } from '../../engine/id';
 import { MoneyInput } from '../../components/MoneyInput';
 import { Sheet } from '../../components/Sheet';
 import { useToast } from '../../components/Toast';
@@ -41,7 +42,7 @@ export function GoalSheet({ editId }: { editId?: string }) {
       return;
     }
     const goal: Goal = {
-      id: editing?.id ?? crypto.randomUUID(),
+      id: editing?.id ?? newId(),
       name: name.trim(),
       target,
       openingSaved: saved - contributions,

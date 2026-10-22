@@ -1,4 +1,5 @@
 import { dayLabel, KIND } from '../../components/format';
+import { newId } from '../../engine/id';
 import { useToast } from '../../components/Toast';
 import { Card, Chip, Swatch } from '../../components/ui';
 import s from '../../components/ui.module.css';
@@ -53,7 +54,7 @@ function PendingRow({ pending: p }: { pending: Pending }) {
   }
 
   async function register() {
-    const tx = transactionFromPending(p, crypto.randomUUID());
+    const tx = transactionFromPending(p, newId());
     // Si algo ya no es válido (p. ej. la cuenta se archivó), se abre el formulario para corregir.
     if (validateTransaction(tx, data).length) {
       adjust();

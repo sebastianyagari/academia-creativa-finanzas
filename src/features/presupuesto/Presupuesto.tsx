@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { newId } from '../../engine/id';
 import { CUBE, GROUP_LABEL, monthLabel, OUT_CUBES } from '../../components/format';
 import { Icon } from '../../components/Icon';
 import { MoneyInput } from '../../components/MoneyInput';
@@ -93,7 +94,7 @@ function GroupCard({ group }: { group: Group }) {
     const name = newName.trim();
     if (!name) return;
     const created: Category = {
-      id: crypto.randomUUID(),
+      id: newId(),
       group,
       name,
       budget: 0,

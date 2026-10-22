@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { newId } from '../../engine/id';
 import { KIND } from '../../components/format';
 import { MoneyInput } from '../../components/MoneyInput';
 import { Sheet } from '../../components/Sheet';
@@ -108,7 +109,7 @@ export function TransactionSheet({
       return;
     }
     const created: Category = {
-      id: crypto.randomUUID(),
+      id: newId(),
       group: GROUP[kind],
       name,
       budget: 0,
@@ -134,7 +135,7 @@ export function TransactionSheet({
     let tx: Transaction = {
       ...(link.fromRecurringId ? { fromRecurringId: link.fromRecurringId } : {}),
       ...(link.scheduledDate ? { scheduledDate: link.scheduledDate } : {}),
-      id: editing?.id ?? crypto.randomUUID(),
+      id: editing?.id ?? newId(),
       kind,
       date,
       amount,
@@ -148,7 +149,7 @@ export function TransactionSheet({
       return;
     }
     if (repeat) {
-      const linked = repeatMonthly(tx, crypto.randomUUID());
+      const linked = repeatMonthly(tx, newId());
       tx = linked.transaction;
       await actions.saveTransaction(tx, linked.recurring);
     } else {

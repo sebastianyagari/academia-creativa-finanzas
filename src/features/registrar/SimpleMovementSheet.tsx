@@ -3,6 +3,7 @@
  * Comparten forma: monto, cuenta de origen, fecha; el pago agrega "intereses".
  */
 import { useState, type FormEvent } from 'react';
+import { newId } from '../../engine/id';
 import { MoneyInput } from '../../components/MoneyInput';
 import { Sheet } from '../../components/Sheet';
 import { useToast } from '../../components/Toast';
@@ -114,7 +115,7 @@ function MovementForm({
       ...(editing?.fromRecurringId
         ? { fromRecurringId: editing.fromRecurringId, scheduledDate: editing.scheduledDate }
         : fromPending),
-      id: editing?.id ?? crypto.randomUUID(),
+      id: editing?.id ?? newId(),
       kind,
       date,
       amount,
@@ -129,7 +130,7 @@ function MovementForm({
       return;
     }
     if (repeat) {
-      const linked = repeatMonthly(tx, crypto.randomUUID());
+      const linked = repeatMonthly(tx, newId());
       tx = linked.transaction;
       await actions.saveTransaction(tx, linked.recurring);
     } else {

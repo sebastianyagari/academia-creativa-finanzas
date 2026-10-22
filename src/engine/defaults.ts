@@ -1,4 +1,5 @@
 import type { Account, AppData, Category, Group, Profile, Settings } from './types';
+import { newId as generateId } from './id';
 
 /** Categoría de sistema donde caen los intereses de los pagos de deuda (SPEC 4.2). */
 export const INTEREST_CATEGORY_ID = 'sistema-intereses';
@@ -118,7 +119,7 @@ export function defaultSettings(): Settings {
 }
 
 /** Datos con los que queda la app si se salta el onboarding (SPEC 6.1). */
-export function createDefaultData(newId: IdFn = () => crypto.randomUUID()): AppData {
+export function createDefaultData(newId: IdFn = generateId): AppData {
   return {
     accounts: defaultAccounts(newId),
     categories: defaultCategories(newId),

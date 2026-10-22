@@ -19,6 +19,15 @@ npm run dev
 ```
 
 Abre la dirección que muestra la terminal (normalmente http://localhost:5173).
+### Probar en tu celular
+
+Con el celular y el computador en la misma red Wi-Fi:
+
+```bash
+npm run dev:celular
+```
+
+La terminal muestra una dirección "Network" (por ejemplo `http://192.168.1.20:5173`): ábrela en el navegador del celular. Si Windows pregunta por el firewall, permite el acceso en redes privadas. Los datos que registres ahí quedan en el celular, separados de los del computador.
 
 ## Probar
 

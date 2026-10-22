@@ -31,6 +31,7 @@ import {
   type Settings,
   type Transaction,
 } from '../engine';
+import { newId } from '../engine/id';
 import { createDemoData } from './demo';
 
 export interface Actions {
@@ -167,10 +168,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const now = todayInColombia();
           const current = await loadAll(db);
           const rules = rulesFor(Number(now.slice(0, 4))).rules;
-          await replaceAll(
-            db,
-            applyOnboarding(current, answers, now, rules, () => crypto.randomUUID()),
-          );
+          await replaceAll(db, applyOnboarding(current, answers, now, rules, newId));
         });
         await requestPersistentStorage();
       },
