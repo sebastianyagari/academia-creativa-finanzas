@@ -27,10 +27,13 @@ export function MoneyInput({
   className?: string;
 }) {
   const [text, setText] = useState(value ? formatPlain(value) : '');
-  const [lastValue, setLastValue] = useState(value);
-  // Si el valor cambia desde afuera (otra pantalla, guardado), se refleja aquí.
-  if (value !== lastValue) {
-    setLastValue(value);
+  // Solo un cambio del valor que llega de afuera (otra pantalla, guardado) reemplaza
+  // lo escrito. Se compara contra el valor anterior de afuera, no contra lo tecleado:
+  // en los campos que guardan al salir (onCommit) el valor de afuera no cambia
+  // mientras se escribe, y antes eso borraba cada tecla.
+  const [outside, setOutside] = useState(value);
+  if (value !== outside) {
+    setOutside(value);
     setText(value ? formatPlain(value) : '');
   }
   return (
@@ -46,7 +49,6 @@ export function MoneyInput({
       onChange={(e) => {
         const n = parseMoney(e.target.value);
         setText(n ? formatPlain(n) : '');
-        setLastValue(n);
         onChange?.(n);
       }}
       onBlur={() => onCommit?.(parseMoney(text))}
