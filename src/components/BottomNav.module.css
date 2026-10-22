@@ -1,0 +1,49 @@
+.nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding: 6px max(10px, env(safe-area-inset-right, 0px))
+    calc(6px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+}
+
+.inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.item {
+  border: 0;
+  background: transparent;
+  border-radius: 12px;
+  padding: 6px 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  min-height: 52px;
+  /* "Movimientos" y "Presupuesto" deben caber completos desde 360 px de ancho. */
+  font-size: 11px;
+  letter-spacing: -0.01em;
+  color: var(--muted);
+}
+
+.item span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item[aria-current='page'] {
+  color: var(--accent);
+  font-weight: 700;
+  background: var(--accent-soft);
+}

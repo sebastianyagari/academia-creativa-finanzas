@@ -1,0 +1,3 @@
+# v1: acceso por link privado, no indexar (SPEC secciones 10 y 12).
+User-agent: *
+Disallow: /

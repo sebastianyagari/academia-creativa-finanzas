@@ -1,0 +1,44 @@
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Amarillo de marca solo como acento pequeño (SPEC 8.1). */
+.dot {
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+  border: 1.5px solid var(--accent);
+  border-radius: 2px;
+}
+
+.title {
+  font-size: 30px;
+  line-height: 1.05;
+  margin-top: 4px;
+}
+
+.icon {
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+  flex: none;
+}

@@ -1,0 +1,107 @@
+/*
+ * Tokens de diseño: única fuente de color, tipografía y forma (SPEC sección 8).
+ * Base: prototipo. Ajustes de la sección 8.2 respecto al prototipo:
+ *  - Colores de categoría con menos saturación.
+ *  - Rojo (--bad, --c-deu) solo para alertas y deudas; verde (--ok, --c-ing) solo
+ *    para ingresos y "pagada".
+ *  - --ok, --warn y --bad del modo claro oscurecidos para que las etiquetas
+ *    (texto sobre su propio color al 16-18 %) pasen WCAG AA (>= 4.5:1).
+ *  - --on-bad: texto sobre botones rojos (el blanco no alcanza contraste en oscuro).
+ * Amarillo de marca (--gold): solo acento pequeño, nunca como fondo.
+ */
+:root {
+  --bg: #f6f2f9;
+  --surface: #ffffff;
+  --surface2: #f0eaf5;
+  --fg: #21172b;
+  --muted: #675a75;
+  --line: #e3daea;
+  --accent: #6a1b9a;
+  --on-accent: #ffffff;
+  --accent-soft: #ede0f4;
+  --hero: #6a1b9a;
+  --hero-fg: #ffffff;
+  --hero-dim: rgba(255, 255, 255, 0.8);
+  --hero-line: rgba(255, 255, 255, 0.22);
+  --gold: #ffeb3b;
+
+  --ok: #17704a;
+  --warn: #875000;
+  --bad: #b0243a;
+  --on-bad: #ffffff;
+
+  --c-ing: #2b8a5e;
+  --c-fac: #3d6cc4;
+  --c-gas: #c0682a;
+  --c-aho: #1d8189;
+  --c-deu: #b23a4e;
+  --c-inv: #8549a6;
+
+  --shadow: 0 1px 2px rgba(33, 23, 43, 0.06), 0 6px 18px rgba(33, 23, 43, 0.05);
+  --scrim: rgba(15, 6, 22, 0.55);
+
+  --f-display: 'Baloo Bhaina 2', 'Trebuchet MS', system-ui, sans-serif;
+  --f-body: Roboto, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --radius-sm: 10px;
+  --radius: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --tap: 44px;
+  --max-width: 980px;
+  --gutter: 16px;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #140d1b;
+    --surface: #1e1527;
+    --surface2: #291c36;
+    --fg: #f3ecf8;
+    --muted: #ac9eb9;
+    --line: #372a43;
+    --accent: #d3a0ee;
+    --on-accent: #2a0a3d;
+    --accent-soft: #3a2349;
+    --hero: #561785;
+    --ok: #4cc783;
+    --warn: #f0b34a;
+    --bad: #ff7a93;
+    --on-bad: #2a0a14;
+    --c-ing: #5dbb89;
+    --c-fac: #86a6ec;
+    --c-gas: #e79a62;
+    --c-aho: #58bac3;
+    --c-deu: #ec8597;
+    --c-inv: #be98d8;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.25);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #140d1b;
+  --surface: #1e1527;
+  --surface2: #291c36;
+  --fg: #f3ecf8;
+  --muted: #ac9eb9;
+  --line: #372a43;
+  --accent: #d3a0ee;
+  --on-accent: #2a0a3d;
+  --accent-soft: #3a2349;
+  --hero: #561785;
+  --ok: #4cc783;
+  --warn: #f0b34a;
+  --bad: #ff7a93;
+  --on-bad: #2a0a14;
+  --c-ing: #5dbb89;
+  --c-fac: #86a6ec;
+  --c-gas: #e79a62;
+  --c-aho: #58bac3;
+  --c-deu: #ec8597;
+  --c-inv: #be98d8;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.25);
+  color-scheme: dark;
+}

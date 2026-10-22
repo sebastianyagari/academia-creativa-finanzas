@@ -1,0 +1,25 @@
+.mark {
+  display: inline-flex;
+  flex: none;
+}
+
+.dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme='light'])) .light {
+    display: none;
+  }
+  :global(:root:not([data-theme='light'])) .dark {
+    display: block;
+  }
+}
+
+:global(:root[data-theme='dark']) .light {
+  display: none;
+}
+
+:global(:root[data-theme='dark']) .dark {
+  display: block;
+}

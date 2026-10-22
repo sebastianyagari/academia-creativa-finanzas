@@ -1,0 +1,7 @@
+.app {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding-top: max(14px, env(safe-area-inset-top, 0px));
+  /* Espacio para la navegación inferior y el botón flotante. */
+  padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+}
