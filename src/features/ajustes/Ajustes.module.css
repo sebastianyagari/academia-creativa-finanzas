@@ -22,13 +22,21 @@
 
 .account {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 132px auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 8px;
   align-items: center;
   margin-top: 8px;
 }
 
-.cardDebt {
+/* "Tienes" / "Debes" + monto. */
+.balance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.balance input {
+  width: 132px;
   text-align: right;
 }
 
@@ -44,20 +52,60 @@
   }
 }
 
-.add {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+.newAccount {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
   margin-top: 12px;
 }
 
+.add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.cardFields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
 @media (max-width: 480px) {
-  .add {
+  .cardFields {
     grid-template-columns: 1fr 1fr;
   }
-  .add button {
+  .cardFields > :first-child {
     grid-column: 1 / -1;
   }
+}
+
+.recurring {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.recurring:first-of-type {
+  border-top: 0;
+}
+
+.paused {
+  opacity: 0.6;
+}
+
+.recurringOpen {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 4px 0;
+  min-height: var(--tap);
+}
+
+.recurringOpen span {
+  display: block;
 }
 
 .danger {

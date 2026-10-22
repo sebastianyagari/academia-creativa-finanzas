@@ -2,6 +2,7 @@ import { BottomNav } from './components/BottomNav';
 import { Icon } from './components/Icon';
 import { ToastProvider } from './components/Toast';
 import { Ajustes } from './features/ajustes/Ajustes';
+import { RecurringSheet } from './features/ajustes/RecurringSheet';
 import { DebtSheet } from './features/deudas/DebtSheet';
 import { Deudas } from './features/deudas/Deudas';
 import { Inicio } from './features/inicio/Inicio';
@@ -72,12 +73,34 @@ function OpenSheet({ sheet }: { sheet: SheetState }) {
   switch (sheet.type) {
     case 'tx':
       return (
-        <TransactionSheet key={key} editId={sheet.editId} kind={sheet.kind} preset={sheet.preset} />
+        <TransactionSheet
+          key={key}
+          editId={sheet.editId}
+          kind={sheet.kind}
+          preset={sheet.preset}
+          pending={sheet.pending}
+        />
       );
     case 'contrib':
-      return <ContributionSheet key={key} goalId={sheet.goalId} editId={sheet.editId} />;
+      return (
+        <ContributionSheet
+          key={key}
+          goalId={sheet.goalId}
+          editId={sheet.editId}
+          pending={sheet.pending}
+        />
+      );
     case 'debtPay':
-      return <DebtPaymentSheet key={key} debtId={sheet.debtId} editId={sheet.editId} />;
+      return (
+        <DebtPaymentSheet
+          key={key}
+          debtId={sheet.debtId}
+          editId={sheet.editId}
+          pending={sheet.pending}
+        />
+      );
+    case 'recurring':
+      return <RecurringSheet key={key} id={sheet.id} />;
     case 'goal':
       return <GoalSheet key={key} editId={sheet.editId} />;
     case 'debt':

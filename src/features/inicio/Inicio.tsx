@@ -41,6 +41,7 @@ import {
 } from '../../engine';
 import { useNav } from '../../state/nav';
 import { useStore } from '../../state/store';
+import { Pendientes } from '../registrar/Pendientes';
 import { ScreenTop } from '../shared/ScreenTop';
 import h from './Hero.module.css';
 
@@ -185,6 +186,8 @@ function MonthView() {
   return (
     <div className={`${s.grid} ${s.two}`}>
       <div className={s.span2}>{hero}</div>
+      {/* Inicio muestra solo los pendientes del mes actual (Anexo D.10). */}
+      {m === currentMonth && <Pendientes month={m} span2 />}
       <Bills month={m} />
       <Card title="A dónde va mi dinero">
         <Donut slices={donutSlices(totals)} />

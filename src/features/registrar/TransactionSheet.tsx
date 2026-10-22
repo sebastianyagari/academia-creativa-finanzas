@@ -7,15 +7,20 @@ import { ConfirmButton } from '../../components/ui';
 import s from '../../components/ui.module.css';
 import {
   categoriesOf,
+  insertCategory,
   monthOf,
+  repeatMonthly,
+  suggestedCategoryId,
   validateTransaction,
+  type Category,
   type Group,
   type Kind,
   type Transaction,
 } from '../../engine';
-import { useNav } from '../../state/nav';
+import { useNav, type PendingRef } from '../../state/nav';
 import { useStore } from '../../state/store';
 import { accountsFor, isCard } from '../shared/describe';
+import f from './Form.module.css';
 
 /** Tipos que se registran desde el botón + (SPEC 6.3). Ahorro y pago de deuda van desde Metas y Deudas. */
 const KINDS = ['gasto', 'ingreso', 'factura', 'inversion', 'transferencia'] as const;
@@ -28,6 +33,8 @@ const GROUP: Record<Exclude<SheetKind, 'transferencia'>, Group> = {
   inversion: 'inversiones',
 };
 
+const NEW_CATEGORY = '__nueva__';
+
 /** Fecha por defecto: hoy si se está viendo el mes actual; si no, el día 1 del mes visto. */
 function defaultDate(today: string, viewedMonth: string): string {
   return monthOf(today) === viewedMonth ? today : `${viewedMonth}-01`;
@@ -37,53 +44,96 @@ export function TransactionSheet({
   editId,
   kind: initialKind,
   preset,
+  pending,
 }: {
   editId?: string;
   kind?: Kind;
   preset?: { categoryId?: string; amount?: number; toAccountId?: string };
+  /** Registrar un pendiente con ajustes: se prellena con su plantilla. */
+  pending?: PendingRef;
 }) {
   const { data, today, actions } = useStore();
   const nav = useNav();
   const toast = useToast();
   const editing = data.transactions.find((t) => t.id === editId);
+  const template = pending ? data.recurrings.find((r) => r.id === pending.recurringId) : undefined;
+  const base = editing ?? template;
 
-  const [kind, setKind] = useState<SheetKind>(
-    (editing?.kind ?? initialKind ?? 'gasto') as SheetKind,
+  const startKind = (base?.kind ?? initialKind ?? 'gasto') as SheetKind;
+  const [kind, setKind] = useState<SheetKind>(startKind);
+  const [amount, setAmount] = useState(base?.amount ?? preset?.amount ?? 0);
+  const [categoryId, setCategoryId] = useState(
+    base?.categoryId ?? preset?.categoryId ?? suggestedCategoryId(data, startKind) ?? '',
   );
-  const [amount, setAmount] = useState(editing?.amount ?? preset?.amount ?? 0);
-  const [categoryId, setCategoryId] = useState(editing?.categoryId ?? preset?.categoryId ?? '');
   const [accountId, setAccountId] = useState(
-    editing?.accountId ?? accountsFor(data, editing?.kind ?? initialKind ?? 'gasto')[0]?.id ?? '',
+    base?.accountId ?? accountsFor(data, startKind)[0]?.id ?? '',
   );
-  const [toAccountId, setToAccountId] = useState(editing?.toAccountId ?? preset?.toAccountId ?? '');
-  const [date, setDate] = useState(editing?.date ?? defaultDate(today, nav.month));
-  const [note, setNote] = useState(editing?.note ?? '');
+  const [toAccountId, setToAccountId] = useState(base?.toAccountId ?? preset?.toAccountId ?? '');
+  const [date, setDate] = useState(
+    editing?.date ?? pending?.scheduledDate ?? defaultDate(today, nav.month),
+  );
+  const [note, setNote] = useState(base?.note ?? '');
+  const [repeat, setRepeat] = useState(false);
+  const [newCategory, setNewCategory] = useState<string | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
 
   const isTransfer = kind === 'transferencia';
   const categories = isTransfer
     ? []
     : categoriesOf(data.categories, GROUP[kind]).filter(
-        (c) => !c.archived || c.id === editing?.categoryId,
+        (c) => (!c.archived && !c.isSystem) || c.id === base?.categoryId,
       );
-  const origins = accountsFor(data, kind, editing?.accountId);
+  const origins = accountsFor(data, kind, base?.accountId);
   const destinations = data.accounts.filter(
-    (a) => (!a.archived || a.id === editing?.toAccountId) && a.id !== accountId,
+    (a) => (!a.archived || a.id === base?.toAccountId) && a.id !== accountId,
   );
 
   function changeKind(next: SheetKind) {
     setKind(next);
-    setCategoryId('');
+    setCategoryId(suggestedCategoryId(data, next) ?? '');
+    setNewCategory(null);
     setErrors([]);
     const allowed = accountsFor(data, next);
     if (!allowed.some((a) => a.id === accountId)) setAccountId(allowed[0]?.id ?? '');
   }
 
+  /** "+ Crear categoría" sin salir del registro (SPEC 6.3). Entra antes de "Otros". */
+  async function createCategory() {
+    const name = (newCategory ?? '').trim();
+    if (isTransfer || !name) return;
+    const existing = categories.find((c) => c.name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      setCategoryId(existing.id);
+      setNewCategory(null);
+      return;
+    }
+    const created: Category = {
+      id: crypto.randomUUID(),
+      group: GROUP[kind],
+      name,
+      budget: 0,
+      isOther: false,
+      isSystem: false,
+      archived: false,
+      order: 0,
+    };
+    await actions.saveCategories(insertCategory(data.categories, created));
+    setCategoryId(created.id);
+    setNewCategory(null);
+    toast('Categoría creada');
+  }
+
   async function submit(e: FormEvent) {
     e.preventDefault();
-    const tx: Transaction = {
-      ...(editing?.fromRecurringId ? { fromRecurringId: editing.fromRecurringId } : {}),
-      ...(editing?.scheduledDate ? { scheduledDate: editing.scheduledDate } : {}),
+    // Un movimiento editado conserva su enlace; uno desde un pendiente lo crea.
+    const link: { fromRecurringId?: string; scheduledDate?: string } =
+      editing ??
+      (pending
+        ? { fromRecurringId: pending.recurringId, scheduledDate: pending.scheduledDate }
+        : {});
+    let tx: Transaction = {
+      ...(link.fromRecurringId ? { fromRecurringId: link.fromRecurringId } : {}),
+      ...(link.scheduledDate ? { scheduledDate: link.scheduledDate } : {}),
       id: editing?.id ?? crypto.randomUUID(),
       kind,
       date,
@@ -97,29 +147,41 @@ export function TransactionSheet({
       setErrors(problems);
       return;
     }
-    await actions.saveTransaction(tx);
+    if (repeat) {
+      const linked = repeatMonthly(tx, crypto.randomUUID());
+      tx = linked.transaction;
+      await actions.saveTransaction(tx, linked.recurring);
+    } else {
+      await actions.saveTransaction(tx);
+    }
     nav.setMonth(monthOf(date));
     nav.closeSheet();
-    toast(editing ? 'Cambios guardados' : 'Guardado');
+    toast(editing ? 'Cambios guardados' : repeat ? 'Guardado. Se repetirá cada mes.' : 'Guardado');
   }
 
-  const title = editing ? 'Editar movimiento' : 'Registrar movimiento';
+  const title = editing
+    ? 'Editar movimiento'
+    : pending
+      ? 'Registrar pendiente'
+      : 'Registrar movimiento';
   return (
     <Sheet title={title} onClose={nav.closeSheet}>
       <form className={s.form} onSubmit={submit} noValidate>
-        <div className={s.chips} role="group" aria-label="Tipo de movimiento">
-          {KINDS.map((k) => (
-            <button
-              key={k}
-              type="button"
-              className={s.filterChip}
-              aria-pressed={kind === k}
-              onClick={() => changeKind(k)}
-            >
-              {KIND[k].label}
-            </button>
-          ))}
-        </div>
+        {!pending && (
+          <div className={s.chips} role="group" aria-label="Tipo de movimiento">
+            {KINDS.map((k) => (
+              <button
+                key={k}
+                type="button"
+                className={s.filterChip}
+                aria-pressed={kind === k}
+                onClick={() => changeKind(k)}
+              >
+                {KIND[k].label}
+              </button>
+            ))}
+          </div>
+        )}
         <label htmlFor="f-amount">
           Monto
           <MoneyInput id="f-amount" value={amount} onChange={setAmount} large />
@@ -158,6 +220,41 @@ export function TransactionSheet({
               </select>
             </label>
           </div>
+        ) : newCategory !== null ? (
+          <div className={s.field}>
+            <label htmlFor="f-newcat">Nueva categoría de {GROUP[kind]}</label>
+            <div className={f.inline}>
+              <input
+                id="f-newcat"
+                className={s.input}
+                maxLength={40}
+                value={newCategory}
+                placeholder="Ej. Gimnasio"
+                autoFocus
+                onChange={(e) => setNewCategory(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    void createCategory();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className={`${s.btn} ${s.sm}`}
+                onClick={() => void createCategory()}
+              >
+                Crear
+              </button>
+              <button
+                type="button"
+                className={`${s.btn} ${s.line} ${s.sm}`}
+                onClick={() => setNewCategory(null)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
         ) : (
           <label htmlFor="f-cat">
             Categoría
@@ -165,7 +262,10 @@ export function TransactionSheet({
               id="f-cat"
               className={s.input}
               value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
+              onChange={(e) => {
+                if (e.target.value === NEW_CATEGORY) setNewCategory('');
+                else setCategoryId(e.target.value);
+              }}
             >
               <option value="">Elige una categoría</option>
               {categories.map((c) => (
@@ -173,6 +273,7 @@ export function TransactionSheet({
                   {c.name}
                 </option>
               ))}
+              <option value={NEW_CATEGORY}>+ Crear categoría</option>
             </select>
           </label>
         )}
@@ -216,6 +317,7 @@ export function TransactionSheet({
             onChange={(e) => setNote(e.target.value)}
           />
         </label>
+        {!editing && !pending && <RepeatToggle checked={repeat} onChange={setRepeat} date={date} />}
         <FormErrors errors={errors} />
         <button type="submit" className={s.btn}>
           {editing ? 'Guardar cambios' : 'Guardar'}
@@ -223,6 +325,37 @@ export function TransactionSheet({
         {editing && <DeleteMovement id={editing.id} />}
       </form>
     </Sheet>
+  );
+}
+
+/** Interruptor "Repetir cada mes" (SPEC 5.4): crea la plantilla, nunca anota sola. */
+export function RepeatToggle({
+  checked,
+  onChange,
+  date,
+}: {
+  checked: boolean;
+  onChange: (value: boolean) => void;
+  date: string;
+}) {
+  return (
+    <label className={f.switchRow}>
+      <input
+        type="checkbox"
+        role="switch"
+        className={f.switch}
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      <span>
+        <b>Repetir cada mes</b>
+        <span className={s.hint}>
+          {checked
+            ? `Cada mes, el día ${Number(date.slice(8)) || '…'}, lo verás como pendiente para registrarlo con un toque.`
+            : 'Para arriendo, servicios, nómina y todo lo que se repite.'}
+        </span>
+      </span>
+    </label>
   );
 }
 

@@ -87,6 +87,28 @@
   text-align: center;
 }
 
+.cardActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.archived {
+  margin-top: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+  font-size: 14px;
+}
+
+.archived summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 700;
+  min-height: var(--tap);
+  display: flex;
+  align-items: center;
+}
+
 .add {
   display: flex;
   gap: 8px;

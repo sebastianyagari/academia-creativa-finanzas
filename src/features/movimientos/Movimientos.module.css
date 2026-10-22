@@ -1,3 +1,56 @@
+.searchRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.search {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0 10px;
+  color: var(--muted);
+}
+
+.search:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  min-height: var(--tap);
+  color: var(--fg);
+  outline: none;
+}
+
+.filters {
+  margin-bottom: 12px;
+}
+
+.pending {
+  margin-bottom: 4px;
+}
+
+.linkButton {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: underline;
+  padding: 0;
+  min-height: auto;
+}
+
 .day {
   font-family: var(--f-body);
   font-size: 12px;

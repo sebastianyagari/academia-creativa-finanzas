@@ -16,11 +16,13 @@ import {
   goalSaved,
   insertCategory,
   monthRange,
+  moveCategory,
   type Category,
   type Group,
 } from '../../engine';
 import { useNav } from '../../state/nav';
 import { useStore } from '../../state/store';
+import { Reorder } from '../shared/Reorder';
 import { ScreenTop } from '../shared/ScreenTop';
 import p from './Presupuesto.module.css';
 
@@ -79,8 +81,12 @@ function GroupCard({ group }: { group: Group }) {
   const nav = useNav();
   const toast = useToast();
   const [newName, setNewName] = useState('');
+  const [sorting, setSorting] = useState(false);
   const actuals = categoryActuals(data.transactions, monthRange(nav.month));
-  const categories = categoriesOf(data.categories, group).filter((c) => !c.archived);
+  const all = categoriesOf(data.categories, group);
+  const categories = all.filter((c) => !c.archived);
+  const archived = all.filter((c) => c.archived);
+  const movable = categories.filter((c) => !c.isOther);
   const color = CUBE[group].color;
 
   async function add() {
@@ -102,10 +108,61 @@ function GroupCard({ group }: { group: Group }) {
   }
 
   return (
-    <Card title={GROUP_LABEL[group]} action={<Swatch color={color} />}>
-      {categories.map((c) => (
-        <CategoryRow key={c.id} category={c} actual={actuals.get(c.id) ?? 0} color={color} />
-      ))}
+    <Card
+      title={GROUP_LABEL[group]}
+      action={
+        <span className={p.cardActions}>
+          {movable.length > 1 && (
+            <button
+              type="button"
+              className={`${s.btn} ${s.ghost} ${s.sm}`}
+              aria-label={
+                sorting
+                  ? `Terminar de ordenar ${GROUP_LABEL[group]}`
+                  : `Ordenar ${GROUP_LABEL[group]}`
+              }
+              onClick={() => setSorting(!sorting)}
+            >
+              {sorting ? 'Listo' : 'Ordenar'}
+            </button>
+          )}
+          <Swatch color={color} />
+        </span>
+      }
+    >
+      {sorting ? (
+        <>
+          <Reorder
+            items={movable}
+            onMove={(id, to) => actions.saveCategories(moveCategory(data.categories, id, to))}
+          />
+          <p className={s.note}>“{categories.find((c) => c.isOther)?.name}” siempre va al final.</p>
+        </>
+      ) : (
+        categories.map((c) => (
+          <CategoryRow key={c.id} category={c} actual={actuals.get(c.id) ?? 0} color={color} />
+        ))
+      )}
+      {archived.length > 0 && !sorting && (
+        <details className={p.archived}>
+          <summary>Archivadas ({archived.length})</summary>
+          {archived.map((c) => (
+            <div className={s.sumRow} key={c.id}>
+              <span>{c.name}</span>
+              <button
+                type="button"
+                className={`${s.btn} ${s.line} ${s.sm}`}
+                onClick={async () => {
+                  await actions.saveCategories([{ ...c, archived: false }]);
+                  toast('Categoría restaurada');
+                }}
+              >
+                Restaurar
+              </button>
+            </div>
+          ))}
+        </details>
+      )}
       <form
         className={p.add}
         onSubmit={(e) => {
@@ -142,7 +199,9 @@ function CategoryRow({
   const toast = useToast();
   const [name, setName] = useState(c.name);
   const fixed = c.isOther || c.isSystem;
-  const used = data.transactions.some((t) => t.categoryId === c.id);
+  const used =
+    data.transactions.some((t) => t.categoryId === c.id) ||
+    data.recurrings.some((r) => r.categoryId === c.id);
   const over = c.group !== 'ingresos' && c.budget > 0 && actual > c.budget;
 
   const save = (changes: Partial<Category>) => actions.saveCategories([{ ...c, ...changes }]);

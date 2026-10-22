@@ -23,6 +23,15 @@ const PATHS = {
   right: <path d="m9 5 7 7-7 7" />,
   alert: <path d="M12 4 2.5 20h19zM12 10v4M12 17h.01" />,
   back: <path d="M19 12H5M11 6l-6 6 6 6" />,
+  up: <path d="m6 15 6-6 6 6" />,
+  down: <path d="m6 9 6 6 6-6" />,
+  search: (
+    <>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </>
+  ),
+  repeat: <path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3" />,
   gear: (
     <>
       <circle cx="12" cy="12" r="3" />

@@ -1,0 +1,105 @@
+.inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.inline input {
+  flex: 1;
+  min-width: 0;
+}
+
+.switchRow {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--fg) !important;
+  font-weight: 400 !important;
+  font-size: 15px !important;
+  cursor: pointer;
+}
+
+.switchRow > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Interruptor accesible: es un checkbox real con rol switch. */
+.switch {
+  appearance: none;
+  flex: none;
+  width: 46px;
+  height: 28px;
+  border-radius: 99px;
+  background: var(--line);
+  position: relative;
+  margin: 0;
+  cursor: pointer;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  transition: transform 0.15s;
+}
+
+.switch:checked {
+  background: var(--accent);
+}
+
+.switch:checked::after {
+  transform: translateX(18px);
+}
+
+/* Pendientes */
+.pendingRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+.pendingRow:first-of-type {
+  border-top: 0;
+}
+
+.pendingOpen {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 4px 0;
+  min-height: var(--tap);
+}
+
+.pendingOpen > span {
+  min-width: 0;
+}
+
+.pendingOpen b {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.pendingActions {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}

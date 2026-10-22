@@ -7,13 +7,27 @@ import { MoneyInput } from '../../components/MoneyInput';
 import { Sheet } from '../../components/Sheet';
 import { useToast } from '../../components/Toast';
 import s from '../../components/ui.module.css';
-import { goalProgress, goalSaved, validateTransaction, type Transaction } from '../../engine';
-import { useNav } from '../../state/nav';
+import {
+  goalProgress,
+  goalSaved,
+  repeatMonthly,
+  validateTransaction,
+  type Transaction,
+} from '../../engine';
+import { useNav, type PendingRef } from '../../state/nav';
 import { useStore } from '../../state/store';
 import { accountsFor } from '../shared/describe';
-import { DeleteMovement, FormErrors } from './TransactionSheet';
+import { DeleteMovement, FormErrors, RepeatToggle } from './TransactionSheet';
 
-export function ContributionSheet({ goalId, editId }: { goalId: string; editId?: string }) {
+export function ContributionSheet({
+  goalId,
+  editId,
+  pending,
+}: {
+  goalId: string;
+  editId?: string;
+  pending?: PendingRef;
+}) {
   const { data, currentMonth } = useStore();
   const goal = data.goals.find((g) => g.id === goalId);
   const suggested = goal
@@ -25,13 +39,22 @@ export function ContributionSheet({ goalId, editId }: { goalId: string; editId?:
       title={`${editId ? 'Editar aporte a' : 'Aportar a'} ${goal?.name ?? 'meta'}`}
       link={{ goalId }}
       editId={editId}
+      pending={pending}
       defaultAmount={suggested}
       savedMessage="Aporte registrado"
     />
   );
 }
 
-export function DebtPaymentSheet({ debtId, editId }: { debtId: string; editId?: string }) {
+export function DebtPaymentSheet({
+  debtId,
+  editId,
+  pending,
+}: {
+  debtId: string;
+  editId?: string;
+  pending?: PendingRef;
+}) {
   const { data } = useStore();
   const debt = data.debts.find((d) => d.id === debtId);
   return (
@@ -40,6 +63,7 @@ export function DebtPaymentSheet({ debtId, editId }: { debtId: string; editId?: 
       title={`${editId ? 'Editar pago a' : 'Pago a'} ${debt?.name ?? 'deuda'}`}
       link={{ debtId }}
       editId={editId}
+      pending={pending}
       defaultAmount={debt?.minPayment ?? 0}
       savedMessage="Pago registrado"
       withInterest
@@ -52,6 +76,7 @@ function MovementForm({
   title,
   link,
   editId,
+  pending,
   defaultAmount,
   savedMessage,
   withInterest,
@@ -60,6 +85,7 @@ function MovementForm({
   title: string;
   link: { goalId: string } | { debtId: string };
   editId?: string;
+  pending?: PendingRef;
   defaultAmount: number;
   savedMessage: string;
   withInterest?: boolean;
@@ -68,17 +94,26 @@ function MovementForm({
   const nav = useNav();
   const toast = useToast();
   const editing = data.transactions.find((t) => t.id === editId);
-  const accounts = accountsFor(data, kind, editing?.accountId);
+  const template = pending ? data.recurrings.find((r) => r.id === pending.recurringId) : undefined;
+  const base = editing ?? template;
+  const accounts = accountsFor(data, kind, base?.accountId);
 
-  const [amount, setAmount] = useState(editing?.amount ?? defaultAmount);
+  const [amount, setAmount] = useState(base?.amount ?? defaultAmount);
   const [interest, setInterest] = useState(editing?.interestPart ?? 0);
-  const [accountId, setAccountId] = useState(editing?.accountId ?? accounts[0]?.id ?? '');
-  const [date, setDate] = useState(editing?.date ?? today);
+  const [accountId, setAccountId] = useState(base?.accountId ?? accounts[0]?.id ?? '');
+  const [date, setDate] = useState(editing?.date ?? pending?.scheduledDate ?? today);
+  const [repeat, setRepeat] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    const tx: Transaction = {
+    const fromPending = pending
+      ? { fromRecurringId: pending.recurringId, scheduledDate: pending.scheduledDate }
+      : {};
+    let tx: Transaction = {
+      ...(editing?.fromRecurringId
+        ? { fromRecurringId: editing.fromRecurringId, scheduledDate: editing.scheduledDate }
+        : fromPending),
       id: editing?.id ?? crypto.randomUUID(),
       kind,
       date,
@@ -86,16 +121,28 @@ function MovementForm({
       accountId,
       ...link,
       ...(withInterest && interest > 0 ? { interestPart: interest } : {}),
-      ...(editing?.note ? { note: editing.note } : {}),
+      ...(base?.note ? { note: base.note } : {}),
     };
     const problems = validateTransaction(tx, data);
     if (problems.length) {
       setErrors(problems);
       return;
     }
-    await actions.saveTransaction(tx);
+    if (repeat) {
+      const linked = repeatMonthly(tx, crypto.randomUUID());
+      tx = linked.transaction;
+      await actions.saveTransaction(tx, linked.recurring);
+    } else {
+      await actions.saveTransaction(tx);
+    }
     nav.closeSheet();
-    toast(editing ? 'Cambios guardados' : savedMessage);
+    toast(
+      editing
+        ? 'Cambios guardados'
+        : repeat
+          ? `${savedMessage}. Se repetirá cada mes.`
+          : savedMessage,
+    );
   }
 
   return (
@@ -142,6 +189,7 @@ function MovementForm({
             />
           </label>
         </div>
+        {!editing && !pending && <RepeatToggle checked={repeat} onChange={setRepeat} date={date} />}
         <FormErrors errors={errors} />
         <button type="submit" className={s.btn}>
           {editing ? 'Guardar cambios' : 'Guardar'}
