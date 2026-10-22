@@ -4,6 +4,7 @@ import {
   accountBalance,
   debtBalance,
   goalSaved,
+  pendingFor,
   simDebts,
   simulate,
   validateTransaction,
@@ -54,6 +55,21 @@ describe('datos de ejemplo (SPEC 6.9)', () => {
     const r = simulate(simDebts(demo), 'avalancha', demo.settings.extraPayment);
     expect(r.months).toBe(15);
     expect(Math.round(r.interest)).toBe(1_143_934);
+  });
+
+  it('trae movimientos repetidos: solo queda pendiente lo de este mes que aún no llega', () => {
+    expect(demo.recurrings).toHaveLength(4);
+    // Hoy es 21: nómina (1), arriendo (5), pago de tarjeta (10) e internet (15) ya se registraron.
+    expect(pendingFor(demo, '2026-10')).toEqual([]);
+    for (const m of ['2026-05', '2026-07', '2026-09']) expect(pendingFor(demo, m)).toEqual([]);
+    // El próximo mes aparecen los cuatro.
+    expect(pendingFor(demo, '2026-11')).toHaveLength(4);
+    // A comienzos de mes, lo que no ha llegado queda pendiente.
+    const early = createDemoData('2026-10-07', idGen('demo'));
+    expect(pendingFor(early, '2026-10').map((p) => p.scheduledDate)).toEqual([
+      '2026-10-10',
+      '2026-10-15',
+    ]);
   });
 
   it('es el mismo cada vez (semilla fija)', () => {

@@ -3,15 +3,23 @@ import { createContext, useContext, useMemo, useState, type ReactNode } from 're
 import { defaultPeriod, type Kind, type PeriodKind, type TabId } from '../engine';
 import { useStore } from './store';
 
+/** Pendiente que se está registrando con ajustes (SPEC 5.4). */
+export interface PendingRef {
+  recurringId: string;
+  scheduledDate: string;
+}
+
 export type SheetState =
   | {
       type: 'tx';
       editId?: string;
       kind?: Kind;
       preset?: { categoryId?: string; amount?: number; toAccountId?: string };
+      pending?: PendingRef;
     }
-  | { type: 'contrib'; goalId: string; editId?: string }
-  | { type: 'debtPay'; debtId: string; editId?: string }
+  | { type: 'contrib'; goalId: string; editId?: string; pending?: PendingRef }
+  | { type: 'debtPay'; debtId: string; editId?: string; pending?: PendingRef }
+  | { type: 'recurring'; id: string }
   | { type: 'goal'; editId?: string }
   | { type: 'debt'; editId?: string };
 

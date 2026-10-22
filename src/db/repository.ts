@@ -2,11 +2,66 @@
  * Escrituras puntuales en la base. Cada función toca solo lo necesario y las
  * que cambian varias tablas lo hacen en una transacción (todo o nada).
  */
-import type { Account, Category, Debt, Goal, Profile, Settings, Transaction } from '../engine';
+import type {
+  Account,
+  Category,
+  Debt,
+  Goal,
+  Profile,
+  Recurring,
+  RecurringSkip,
+  Settings,
+  Transaction,
+} from '../engine';
 import type { FinanzasDB } from './database';
 
-export async function putTransaction(db: FinanzasDB, tx: Transaction): Promise<void> {
-  await db.transactions.put(tx);
+/** Guarda un movimiento y, si viene, su plantilla "Repetir cada mes" (todo o nada). */
+export async function putTransaction(
+  db: FinanzasDB,
+  tx: Transaction,
+  recurring?: Recurring,
+): Promise<void> {
+  await db.transaction('rw', db.transactions, db.recurrings, async () => {
+    if (recurring) await db.recurrings.put(recurring);
+    await db.transactions.put(tx);
+  });
+}
+
+export async function putRecurring(db: FinanzasDB, recurring: Recurring): Promise<void> {
+  await db.recurrings.put(recurring);
+}
+
+/** Borra la plantilla y sus omisiones. Los movimientos ya registrados se conservan. */
+export async function deleteRecurring(db: FinanzasDB, id: string): Promise<void> {
+  await db.transaction('rw', db.recurrings, db.recurringSkips, async () => {
+    await db.recurringSkips.where('recurringId').equals(id).delete();
+    await db.recurrings.delete(id);
+  });
+}
+
+export async function putSkip(db: FinanzasDB, skip: RecurringSkip): Promise<void> {
+  await db.recurringSkips.put(skip);
+}
+
+/** Crea una tarjeta: cuenta y deuda enlazadas en una sola transacción. */
+export async function createCard(db: FinanzasDB, account: Account, debt: Debt): Promise<void> {
+  await db.transaction('rw', db.accounts, db.debts, async () => {
+    await db.debts.add(debt);
+    await db.accounts.add(account);
+  });
+}
+
+/** Archiva una cuenta; si es tarjeta, también su deuda. */
+export async function archiveAccount(db: FinanzasDB, id: string): Promise<void> {
+  await db.transaction('rw', db.accounts, db.debts, async () => {
+    const account = await db.accounts.get(id);
+    if (!account) return;
+    await db.accounts.put({ ...account, archived: true });
+    if (account.debtId) {
+      const debt = await db.debts.get(account.debtId);
+      if (debt) await db.debts.put({ ...debt, archived: true });
+    }
+  });
 }
 
 export async function deleteTransaction(db: FinanzasDB, id: string): Promise<void> {

@@ -23,13 +23,22 @@ import {
   type Debt,
   type Goal,
   type Profile,
+  type Recurring,
+  type RecurringSkip,
   type Settings,
   type Transaction,
 } from '../engine';
 import { createDemoData } from './demo';
 
 export interface Actions {
-  saveTransaction(tx: Transaction): Promise<void>;
+  /** Guarda un movimiento y, si viene, la plantilla "Repetir cada mes". */
+  saveTransaction(tx: Transaction, recurring?: Recurring): Promise<void>;
+  saveRecurring(recurring: Recurring): Promise<void>;
+  deleteRecurring(id: string): Promise<void>;
+  skipPending(skip: RecurringSkip): Promise<void>;
+  createCard(account: Account, debt: Debt): Promise<void>;
+  /** Archiva una cuenta (y su deuda, si es tarjeta). */
+  archiveAccount(id: string): Promise<void>;
   deleteTransaction(id: string): Promise<void>;
   saveCategories(categories: Category[]): Promise<void>;
   /** false si la categoría tiene movimientos o no se puede borrar. */
@@ -118,7 +127,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const actions = useMemo<Actions | null>(() => {
     if (!data) return null;
     return {
-      saveTransaction: (tx) => run((db) => repo.putTransaction(db, tx)),
+      saveTransaction: (tx, recurring) => run((db) => repo.putTransaction(db, tx, recurring)),
+      saveRecurring: (recurring) => run((db) => repo.putRecurring(db, recurring)),
+      deleteRecurring: (id) => run((db) => repo.deleteRecurring(db, id)),
+      skipPending: (skip) => run((db) => repo.putSkip(db, skip)),
+      createCard: (account, debt) => run((db) => repo.createCard(db, account, debt)),
+      archiveAccount: (id) => run((db) => repo.archiveAccount(db, id)),
       deleteTransaction: (id) => run((db) => repo.deleteTransaction(db, id)),
       saveCategories: (categories) => run((db) => repo.putCategories(db, categories)),
       deleteCategory: (id) => run((db) => repo.deleteCategory(db, id)),

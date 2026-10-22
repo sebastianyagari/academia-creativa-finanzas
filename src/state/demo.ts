@@ -13,6 +13,7 @@ import {
   type AppData,
   type Category,
   type Kind,
+  type Recurring,
   type Transaction,
 } from '../engine';
 
@@ -137,6 +138,41 @@ export function createDemoData(
     },
   ];
 
+  // Movimientos que se repiten (SPEC 6.9): sus movimientos quedan enlazados, así
+  // solo aparecen como pendientes los de este mes que aún no llegan.
+  const firstMonth = addMonths(current, -5);
+  const repeating = (
+    kind: Kind,
+    amount: number,
+    day: number,
+    fields: Partial<Recurring>,
+  ): Recurring => ({
+    id: newId(),
+    kind,
+    amount,
+    accountId: bank,
+    schedule: { type: 'mensual', day },
+    active: true,
+    startMonth: firstMonth,
+    ...fields,
+  });
+  const nomina = repeating('ingreso', 3_400_000, 1, {
+    categoryId: cat('Salario').id,
+    note: 'Nómina',
+  });
+  const arriendo = repeating('factura', 750_000, 5, {
+    categoryId: cat('Arriendo o cuota de vivienda').id,
+  });
+  const internet = repeating('factura', 125_000, 15, {
+    categoryId: cat('Internet y celular').id,
+    accountId: nequi,
+  });
+  const pagoTarjeta = repeating('transferencia', 160_000, 10, {
+    toAccountId: cardId,
+    note: 'Pago tarjeta',
+  });
+  const recurrings = [nomina, arriendo, internet, pagoTarjeta];
+
   const transactions: Transaction[] = [];
   const paidGoal = [0, 0];
   const paidDebt = [0, 0, 0];
@@ -154,11 +190,16 @@ export function createDemoData(
         accountId: bank,
         ...fields,
       };
+      if (t.fromRecurringId) t.scheduledDate = t.date;
       transactions.push(t);
       return t;
     };
 
-    add(1, 3_400_000, 'ingreso', { categoryId: cat('Salario').id, note: 'Nómina' });
+    add(1, 3_400_000, 'ingreso', {
+      categoryId: cat('Salario').id,
+      note: 'Nómina',
+      fromRecurringId: nomina.id,
+    });
     if (i % 2 === 0) {
       add(18, 120_000 + Math.round(r() * 80_000), 'ingreso', {
         categoryId: cat('Ingresos extra').id,
@@ -166,13 +207,20 @@ export function createDemoData(
         note: 'Trabajo freelance',
       });
     }
-    add(5, 750_000, 'factura', { categoryId: cat('Arriendo o cuota de vivienda').id });
+    add(5, 750_000, 'factura', {
+      categoryId: cat('Arriendo o cuota de vivienda').id,
+      fromRecurringId: arriendo.id,
+    });
     if (i < 0) {
       add(28, 170_000 + Math.round(r() * 40_000), 'factura', {
         categoryId: cat('Servicios públicos').id,
       });
     }
-    add(15, 125_000, 'factura', { categoryId: cat('Internet y celular').id, accountId: nequi });
+    add(15, 125_000, 'factura', {
+      categoryId: cat('Internet y celular').id,
+      accountId: nequi,
+      fromRecurringId: internet.id,
+    });
     add(20, 48_000, 'factura', { categoryId: cat('Suscripciones').id, accountId: cardId });
 
     for (const name of [
@@ -210,6 +258,7 @@ export function createDemoData(
     const p0 = add(10, debts[0]!.minPayment, 'transferencia', {
       toAccountId: cardId,
       note: 'Pago tarjeta',
+      fromRecurringId: pagoTarjeta.id,
     });
     if (p0) paidDebt[0]! += p0.amount;
     debts.slice(1).forEach((d, k) => {
@@ -246,6 +295,7 @@ export function createDemoData(
     goals,
     debts,
     transactions,
+    recurrings,
     settings: { ...base.settings, extraPayment: 150_000, isDemo: true },
   };
 }
