@@ -20,10 +20,21 @@ export default tseslint.config(
     files: ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: { ecmaVersion: 2023, globals: globals.browser },
+    rules: {
+      // Permite `const { campo: _quitado, ...resto } = objeto` para quitar un campo.
+      '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }],
+    },
   },
   {
     files: ['src/**/*.tsx'],
     extends: [reactHooks.configs.flat.recommended, reactRefresh.configs.vite],
+    rules: {
+      // Proveedor de contexto + su hook en el mismo archivo es el patrón usual.
+      'react-refresh/only-export-components': [
+        'error',
+        { allowExportNames: ['useStore', 'useNav', 'useToast'] },
+      ],
+    },
   },
   {
     // El engine es cálculo puro (SPEC 3): no puede depender de React, la base de datos ni la UI.

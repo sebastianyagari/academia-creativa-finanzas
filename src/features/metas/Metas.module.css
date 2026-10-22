@@ -1,0 +1,43 @@
+.intro {
+  margin-bottom: 14px;
+}
+
+.top {
+  align-items: flex-start;
+}
+
+.top h3 {
+  font-size: 18px;
+}
+
+.chip {
+  margin-top: 6px;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+.amounts {
+  margin: 14px 0 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.track {
+  height: 12px;
+}
+
+.bottom {
+  margin-top: 14px;
+  gap: 12px;
+}
+
+.strong {
+  color: var(--fg);
+}

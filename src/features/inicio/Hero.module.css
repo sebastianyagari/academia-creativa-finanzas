@@ -1,0 +1,87 @@
+/* Tarjeta principal: el único bloque morado de marca (SPEC 8.1). */
+.hero {
+  background: var(--hero);
+  color: var(--hero-fg);
+  border-radius: var(--radius-xl);
+  padding: 20px 18px 18px;
+}
+
+.label {
+  font-size: 13px;
+  color: var(--hero-dim);
+  letter-spacing: 0.04em;
+}
+
+.big {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 44px;
+  line-height: 1.05;
+  margin: 2px 0 4px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* Negativo: amarillo de marca como texto sobre morado (acento, no fondo). */
+.negative {
+  color: var(--gold);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 14px;
+  color: var(--hero-dim);
+}
+
+.meta b {
+  color: var(--hero-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.bar {
+  height: 10px;
+  border-radius: 99px;
+  background: var(--hero-line);
+  margin: 16px 0 8px;
+  overflow: hidden;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  background: var(--hero-fg);
+  border-radius: 99px;
+}
+
+.bar.over i {
+  background: var(--gold);
+}
+
+.foot {
+  font-size: 13px;
+  color: var(--hero-dim);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-top: 8px;
+}
+
+.foot b {
+  color: var(--hero-fg);
+}
+
+.divider {
+  border-top: 1px solid var(--hero-line);
+  padding-top: 8px;
+}
+
+.alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gold);
+  font-weight: 700;
+}

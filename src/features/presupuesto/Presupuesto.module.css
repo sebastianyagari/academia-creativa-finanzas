@@ -1,0 +1,94 @@
+.row {
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+}
+
+.row:first-of-type {
+  border-top: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rename {
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 6px 8px;
+  min-height: var(--tap);
+  border-radius: 8px;
+}
+
+.rename:hover,
+.rename:focus {
+  border-color: var(--line);
+  background: var(--surface);
+}
+
+.fixedName {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  overflow-wrap: anywhere;
+}
+
+.fields {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.budget {
+  width: 124px;
+  text-align: right;
+}
+
+.fieldLabel {
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+@media (min-width: 561px) {
+  .fieldLabel {
+    display: none;
+  }
+}
+
+/* En celular el nombre va en su propia línea para leerse completo. */
+@media (max-width: 560px) {
+  .head {
+    flex-wrap: wrap;
+  }
+  .rename,
+  .fixedName {
+    flex-basis: 100%;
+  }
+  .fields {
+    margin-left: auto;
+  }
+}
+
+.due {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.dayInput {
+  width: 70px;
+  text-align: center;
+}
+
+.add {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}

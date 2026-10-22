@@ -1,0 +1,72 @@
+.top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.top h1 {
+  font-size: 30px;
+}
+
+.back {
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.account {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 132px auto;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.cardDebt {
+  text-align: right;
+}
+
+/* En celular el nombre va en su propia línea para leerse completo. */
+@media (max-width: 560px) {
+  .account {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .account > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+.add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+@media (max-width: 480px) {
+  .add {
+    grid-template-columns: 1fr 1fr;
+  }
+  .add button {
+    grid-column: 1 / -1;
+  }
+}
+
+.danger {
+  border: 1px solid var(--bad);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.danger p {
+  margin: 0 0 10px;
+  font-size: 14px;
+}

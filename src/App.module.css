@@ -5,3 +5,30 @@
   /* Espacio para la navegación inferior y el botón flotante. */
   padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px));
 }
+
+/* Botón flotante "+": registrar en un toque desde cualquier pestaña (SPEC 2.3). */
+.fab {
+  position: fixed;
+  z-index: 21;
+  right: max(16px, calc((100vw - var(--max-width)) / 2 + 16px));
+  bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 8px 20px rgba(60, 10, 90, 0.35);
+  display: grid;
+  place-items: center;
+}
+
+.fab i {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+}

@@ -1,30 +1,86 @@
-import { useState } from 'react';
-import { AppHeader } from './components/AppHeader';
 import { BottomNav } from './components/BottomNav';
-import { EmptyState } from './components/EmptyState';
-import { TABS, type TabId } from './features/navigation/tabs';
+import { Icon } from './components/Icon';
+import { ToastProvider } from './components/Toast';
+import { Ajustes } from './features/ajustes/Ajustes';
+import { DebtSheet } from './features/deudas/DebtSheet';
+import { Deudas } from './features/deudas/Deudas';
+import { Inicio } from './features/inicio/Inicio';
+import { GoalSheet } from './features/metas/GoalSheet';
+import { Metas } from './features/metas/Metas';
+import { Movimientos } from './features/movimientos/Movimientos';
+import { TABS } from './features/navigation/tabs';
+import { Presupuesto } from './features/presupuesto/Presupuesto';
+import { ContributionSheet, DebtPaymentSheet } from './features/registrar/SimpleMovementSheet';
+import { TransactionSheet } from './features/registrar/TransactionSheet';
+import { NavProvider, useNav, type SheetState } from './state/nav';
+import { StoreProvider } from './state/store';
 import styles from './App.module.css';
 
-// Esqueleto de la Fase 0: cabecera, pestañas y estados vacíos. Las pantallas
-// reales llegan en la Fase 2.
 export function App() {
-  const [current, setCurrent] = useState<TabId>('inicio');
-  const tab = TABS.find((t) => t.id === current) ?? TABS[0]!;
+  return (
+    <StoreProvider>
+      <NavProvider>
+        <ToastProvider>
+          <Shell />
+        </ToastProvider>
+      </NavProvider>
+    </StoreProvider>
+  );
+}
 
+const SCREENS = {
+  inicio: Inicio,
+  movimientos: Movimientos,
+  presupuesto: Presupuesto,
+  metas: Metas,
+  deudas: Deudas,
+  ajustes: Ajustes,
+};
+
+function Shell() {
+  const nav = useNav();
+  const Screen = SCREENS[nav.screen];
   return (
     <>
       <main className={styles.app}>
-        <AppHeader title={tab.title} onSettings={() => undefined} />
-        <EmptyState>{tab.empty}</EmptyState>
+        <Screen />
       </main>
+      {!nav.sheet && (
+        <button
+          type="button"
+          className={styles.fab}
+          aria-label="Registrar movimiento"
+          onClick={() => nav.openSheet({ type: 'tx' })}
+        >
+          <Icon name="plus" size={28} />
+          <i aria-hidden="true" />
+        </button>
+      )}
       <BottomNav
         tabs={TABS}
-        current={current}
-        onSelect={(id) => {
-          setCurrent(id);
-          window.scrollTo(0, 0);
-        }}
+        current={nav.screen === 'ajustes' ? null : nav.screen}
+        onSelect={nav.setScreen}
       />
+      {nav.sheet && <OpenSheet sheet={nav.sheet} />}
     </>
   );
+}
+
+function OpenSheet({ sheet }: { sheet: SheetState }) {
+  // La key fuerza un formulario nuevo al abrir otra hoja.
+  const key = JSON.stringify(sheet);
+  switch (sheet.type) {
+    case 'tx':
+      return (
+        <TransactionSheet key={key} editId={sheet.editId} kind={sheet.kind} preset={sheet.preset} />
+      );
+    case 'contrib':
+      return <ContributionSheet key={key} goalId={sheet.goalId} editId={sheet.editId} />;
+    case 'debtPay':
+      return <DebtPaymentSheet key={key} debtId={sheet.debtId} editId={sheet.editId} />;
+    case 'goal':
+      return <GoalSheet key={key} editId={sheet.editId} />;
+    case 'debt':
+      return <DebtSheet key={key} editId={sheet.editId} />;
+  }
 }
