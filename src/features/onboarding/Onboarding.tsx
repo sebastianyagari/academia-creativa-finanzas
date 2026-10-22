@@ -96,9 +96,24 @@ export function Onboarding({ repeat }: { repeat: boolean }) {
   const [answers, setAnswers] = useState<OnboardingAnswers>(() => initialAnswers(data, today));
   const [skipped, setSkipped] = useState<Set<Step>>(new Set());
   const [finishing, setFinishing] = useState(false);
+  const [debtDraft, setDebtDraft] = useState<DebtDraft>(EMPTY_DRAFT);
+  const [debtError, setDebtError] = useState('');
 
   const step = STEPS[index]!;
   const set = (changes: Partial<OnboardingAnswers>) => setAnswers((a) => ({ ...a, ...changes }));
+
+  /** Agrega la deuda escrita. Devuelve false si le falta algo (y muestra qué). */
+  function addDraftDebt(): boolean {
+    const read = readDraft(debtDraft);
+    if ('error' in read) {
+      setDebtError(read.error);
+      return false;
+    }
+    setAnswers((a) => ({ ...a, debts: [...a.debts, read.debt] }));
+    setDebtDraft(EMPTY_DRAFT);
+    setDebtError('');
+    return true;
+  }
 
   async function finish(skipAll = false) {
     if (finishing) return;
@@ -110,7 +125,8 @@ export function Onboarding({ repeat }: { repeat: boolean }) {
       monthlyIncome: skip('monto') ? 0 : answers.monthlyIncome,
       socialSecurity: skip('monto') ? false : answers.socialSecurity,
       accounts: skip('cuentas') ? null : answers.accounts,
-      debts: skip('deudas') ? [] : answers.debts.filter((d) => d.name.trim()),
+      // "Saltar" en deudas no borra las que ya se agregaron.
+      debts: skipAll ? [] : answers.debts.filter((d) => d.name.trim()),
       mainGoal: skip('objetivo') ? data.profile.mainGoal : answers.mainGoal,
       goal: skip('objetivo') ? null : answers.goal,
       ...(skip('ingresos')
@@ -126,6 +142,9 @@ export function Onboarding({ repeat }: { repeat: boolean }) {
   }
 
   function next(skip = false) {
+    // Una deuda escrita pero sin "Agregar deuda" no se pierde al seguir (hallado en la
+    // prueba en celular). Si le falta un dato, se avisa y no se avanza.
+    if (step === 'deudas' && !skip && !isEmptyDraft(debtDraft) && !addDraftDebt()) return;
     if (skip) setSkipped((prev) => new Set(prev).add(step));
     else
       setSkipped((prev) => {
@@ -370,7 +389,15 @@ export function Onboarding({ repeat }: { repeat: boolean }) {
                 </button>
               </div>
             ))}
-            <DebtForm onAdd={(debt) => set({ debts: [...answers.debts, debt] })} />
+            <DebtForm
+              draft={debtDraft}
+              onChange={(d) => {
+                setDebtDraft(d);
+                setDebtError('');
+              }}
+              error={debtError}
+              onAdd={() => void addDraftDebt()}
+            />
           </Question>
         )}
 
@@ -535,13 +562,57 @@ function AccountChoice({
   );
 }
 
-function DebtForm({ onAdd }: { onAdd: (debt: OnboardingDebt) => void }) {
-  const [name, setName] = useState('');
-  const [balance, setBalance] = useState(0);
-  const [rate, setRate] = useState('');
-  const [minPayment, setMinPayment] = useState(0);
-  const [isCard, setIsCard] = useState(false);
-  const [error, setError] = useState('');
+interface DebtDraft {
+  name: string;
+  balance: number;
+  rate: string;
+  minPayment: number;
+  isCard: boolean;
+}
+
+const EMPTY_DRAFT: DebtDraft = { name: '', balance: 0, rate: '', minPayment: 0, isCard: false };
+
+function isEmptyDraft(d: DebtDraft): boolean {
+  return !d.name.trim() && !d.balance && !d.rate && !d.minPayment;
+}
+
+/** Convierte el borrador en deuda, o explica qué falta. */
+function readDraft(d: DebtDraft): { debt: OnboardingDebt } | { error: string } {
+  const rateEA = Number.parseFloat((d.rate || '0').replace(',', '.'));
+  if (!d.name.trim() || d.balance <= 0 || d.minPayment <= 0) {
+    return { error: 'Escribe el nombre, lo que debes y la cuota mínima.' };
+  }
+  if (!Number.isFinite(rateEA) || rateEA < 0 || rateEA > 200) {
+    return { error: 'La tasa EA debe estar entre 0 y 200.' };
+  }
+  return {
+    debt: {
+      name: d.name.trim(),
+      balance: d.balance,
+      rateEA,
+      minPayment: d.minPayment,
+      isCard: d.isCard,
+    },
+  };
+}
+
+function DebtForm({
+  draft,
+  onChange,
+  error,
+  onAdd,
+}: {
+  draft: DebtDraft;
+  onChange: (draft: DebtDraft) => void;
+  error: string;
+  onAdd: () => void;
+}) {
+  const { name, balance, rate, minPayment, isCard } = draft;
+  const setName = (v: string) => onChange({ ...draft, name: v });
+  const setBalance = (v: number) => onChange({ ...draft, balance: v });
+  const setRate = (v: string) => onChange({ ...draft, rate: v });
+  const setMinPayment = (v: number) => onChange({ ...draft, minPayment: v });
+  const setIsCard = (v: boolean) => onChange({ ...draft, isCard: v });
   return (
     <div className={o.box}>
       <b>Agregar una deuda</b>
@@ -586,30 +657,12 @@ function DebtForm({ onAdd }: { onAdd: (debt: OnboardingDebt) => void }) {
           {error}
         </p>
       )}
-      <button
-        type="button"
-        className={`${s.btn} ${s.ghost}`}
-        onClick={() => {
-          const rateEA = Number.parseFloat((rate || '0').replace(',', '.'));
-          if (!name.trim() || balance <= 0 || minPayment <= 0) {
-            setError('Escribe el nombre, lo que debes y la cuota mínima.');
-            return;
-          }
-          if (!Number.isFinite(rateEA) || rateEA < 0 || rateEA > 200) {
-            setError('La tasa EA debe estar entre 0 y 200.');
-            return;
-          }
-          onAdd({ name: name.trim(), balance, rateEA, minPayment, isCard });
-          setName('');
-          setBalance(0);
-          setRate('');
-          setMinPayment(0);
-          setIsCard(false);
-          setError('');
-        }}
-      >
+      <button type="button" className={`${s.btn} ${s.ghost}`} onClick={onAdd}>
         Agregar deuda
       </button>
+      <p className={s.hint}>
+        Si tienes varias, agrégalas una por una. Al tocar “Siguiente” guardamos la que esté escrita.
+      </p>
     </div>
   );
 }
