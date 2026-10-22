@@ -4,7 +4,8 @@ import styles from './BottomNav.module.css';
 
 interface Props {
   tabs: readonly Tab[];
-  current: TabId;
+  /** null cuando se está en Ajustes (ninguna pestaña activa). */
+  current: TabId | null;
   onSelect: (id: TabId) => void;
 }
 

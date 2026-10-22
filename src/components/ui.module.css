@@ -1,0 +1,473 @@
+/* Piezas compartidas de interfaz, tomadas del prototipo. */
+
+.grid {
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 820px) {
+  .two {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.span2 {
+  grid-column: 1 / -1;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+
+.card > h2,
+.cardHead h2 {
+  font-size: 20px;
+}
+
+.card > h2 {
+  margin-bottom: 10px;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wrap {
+  flex-wrap: wrap;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sub {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.note {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+
+.money {
+  font-variant-numeric: tabular-nums;
+}
+
+.bigNumber {
+  font-family: var(--f-display);
+  font-size: 28px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+/* Botones */
+.btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 11px 16px;
+  font-weight: 700;
+  background: var(--accent);
+  color: var(--on-accent);
+  min-height: var(--tap);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+}
+
+.ghost {
+  background: var(--surface2);
+  color: var(--fg);
+}
+
+.line {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--fg);
+}
+
+.danger {
+  background: var(--bad);
+  color: var(--on-bad);
+}
+
+.sm {
+  padding: 7px 12px;
+  min-height: 40px;
+  font-size: 14px;
+  border-radius: var(--radius-sm);
+}
+
+.iconBtn {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  min-width: var(--tap);
+  height: var(--tap);
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.iconBtn.sure {
+  background: var(--bad);
+  color: var(--on-bad);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0 10px;
+}
+
+/* Chips de estado: siempre con texto (SPEC 8.2.4). */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: var(--surface2);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.chipOk {
+  background: color-mix(in srgb, var(--ok) 16%, transparent);
+  color: var(--ok);
+}
+
+.chipWarn {
+  background: color-mix(in srgb, var(--warn) 18%, transparent);
+  color: var(--warn);
+}
+
+.chipBad {
+  background: color-mix(in srgb, var(--bad) 16%, transparent);
+  color: var(--bad);
+}
+
+.chipWrap {
+  white-space: normal;
+}
+
+/* Filtros en fila con scroll horizontal propio (no de la página). */
+.chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 12px;
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+.filterChip {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 99px;
+  padding: 7px 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  min-height: var(--tap);
+}
+
+.filterChip[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+  display: inline-block;
+}
+
+/* Barras de progreso */
+.pb {
+  margin: 9px 0;
+}
+
+.pbHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.pbHead > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.pbHead > span:last-child {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  text-align: right;
+}
+
+.track {
+  height: 9px;
+  border-radius: 99px;
+  background: var(--surface2);
+  overflow: hidden;
+}
+
+.track > i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--accent);
+}
+
+.empty {
+  padding: 22px 14px;
+  text-align: center;
+  color: var(--muted);
+  background: var(--surface2);
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
+/* Banda de aviso (datos de ejemplo, respaldo) */
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+/* Selector de mes */
+.monthbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 4px;
+}
+
+.monthbar strong {
+  font-family: var(--f-display);
+  font-size: 18px;
+  text-align: center;
+}
+
+.monthbar button {
+  width: var(--tap);
+  height: var(--tap);
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+}
+
+/* Control segmentado */
+.seg {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 4px;
+  background: var(--surface2);
+  padding: 4px;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+}
+
+.seg button {
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  min-height: 40px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.seg button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--fg);
+  font-weight: 700;
+  box-shadow: var(--shadow);
+}
+
+/* Filas de lista (facturas, cuentas, resumen) */
+.listRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.listRow:first-of-type {
+  border-top: 0;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.grow b {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.sumRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+}
+
+.total {
+  border-top: 2px solid var(--line);
+  font-weight: 700;
+  margin-top: 4px;
+  padding-top: 11px;
+}
+
+/* Tablas */
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  padding: 8px 6px;
+  text-align: left;
+  border-top: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-top: 0;
+}
+
+.table .r {
+  text-align: right;
+}
+
+/* Los montos no se parten en dos líneas; la tabla hace scroll si no cabe. */
+.table td + td {
+  white-space: nowrap;
+}
+
+.table tr.selected td {
+  background: var(--accent-soft);
+  font-weight: 700;
+}
+
+.table tr.totalRow td {
+  font-weight: 700;
+  border-top: 2px solid var(--line);
+}
+
+/* Formularios */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.form label,
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.input {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  min-height: var(--tap);
+  width: 100%;
+  font-weight: 400;
+  color: var(--fg);
+}
+
+.amount {
+  font-family: var(--f-display);
+  font-size: 34px;
+  font-weight: 800;
+  padding: 8px 12px;
+  min-height: 60px;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.error {
+  color: var(--bad);
+  font-size: 14px;
+  min-height: 20px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.hint {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  margin: 0;
+}
