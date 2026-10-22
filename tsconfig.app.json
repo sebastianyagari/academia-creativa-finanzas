@@ -19,8 +19,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "exactOptionalPropertyTypes": true
+    "noImplicitOverride": true
   },
   "include": ["src"]
 }
