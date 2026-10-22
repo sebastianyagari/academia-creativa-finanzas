@@ -1,0 +1,232 @@
+{
+  "app": "academia-creativa-finanzas",
+  "schemaVersion": 1,
+  "exportedAt": "2026-10-21T18:00:00-05:00",
+  "data": {
+    "accounts": [
+      {
+        "id": "a-banco",
+        "name": "Bancolombia ahorros",
+        "type": "banco",
+        "openingBalance": 900000,
+        "archived": false
+      },
+      {
+        "id": "a-nequi",
+        "name": "Nequi",
+        "type": "billetera",
+        "openingBalance": 150000,
+        "archived": false
+      },
+      {
+        "id": "a-visa",
+        "name": "Tarjeta Visa",
+        "type": "tarjeta_credito",
+        "openingBalance": 3200000,
+        "archived": false,
+        "debtId": "d-visa"
+      }
+    ],
+    "categories": [
+      {
+        "id": "c-salario",
+        "group": "ingresos",
+        "name": "Salario",
+        "budget": 3400000,
+        "isOther": false,
+        "isSystem": false,
+        "archived": false
+      },
+      {
+        "id": "c-otros-ing",
+        "group": "ingresos",
+        "name": "Otros ingresos",
+        "budget": 0,
+        "isOther": true,
+        "isSystem": false,
+        "archived": false
+      },
+      {
+        "id": "c-arriendo",
+        "group": "facturas",
+        "name": "Arriendo o cuota de vivienda",
+        "budget": 750000,
+        "dueDay": 5,
+        "isOther": false,
+        "isSystem": false,
+        "archived": false
+      },
+      {
+        "id": "c-otras-fac",
+        "group": "facturas",
+        "name": "Otras facturas",
+        "budget": 0,
+        "isOther": true,
+        "isSystem": false,
+        "archived": false
+      },
+      {
+        "id": "c-mercado",
+        "group": "gastos",
+        "name": "Mercado",
+        "budget": 460000,
+        "isOther": false,
+        "isSystem": false,
+        "archived": false
+      },
+      {
+        "id": "sistema-intereses",
+        "group": "gastos",
+        "name": "Intereses y cuotas de manejo",
+        "budget": 0,
+        "isOther": false,
+        "isSystem": true,
+        "archived": false
+      },
+      {
+        "id": "c-otros-gas",
+        "group": "gastos",
+        "name": "Otros gastos",
+        "budget": 0,
+        "isOther": true,
+        "isSystem": false,
+        "archived": false
+      },
+      {
+        "id": "c-otras-inv",
+        "group": "inversiones",
+        "name": "Otras inversiones",
+        "budget": 0,
+        "isOther": true,
+        "isSystem": false,
+        "archived": false
+      }
+    ],
+    "transactions": [
+      {
+        "id": "t1",
+        "kind": "ingreso",
+        "date": "2026-10-15",
+        "amount": 1700000,
+        "accountId": "a-banco",
+        "categoryId": "c-salario",
+        "note": "Nómina",
+        "fromRecurringId": "r-nomina",
+        "scheduledDate": "2026-10-15"
+      },
+      {
+        "id": "t2",
+        "kind": "factura",
+        "date": "2026-10-05",
+        "amount": 750000,
+        "accountId": "a-banco",
+        "categoryId": "c-arriendo"
+      },
+      {
+        "id": "t3",
+        "kind": "gasto",
+        "date": "2026-10-06",
+        "amount": 120000,
+        "accountId": "a-visa",
+        "categoryId": "c-mercado",
+        "note": "Supermercado"
+      },
+      {
+        "id": "t4",
+        "kind": "transferencia",
+        "date": "2026-10-20",
+        "amount": 400000,
+        "accountId": "a-banco",
+        "toAccountId": "a-visa"
+      },
+      {
+        "id": "t5",
+        "kind": "ahorro",
+        "date": "2026-10-02",
+        "amount": 200000,
+        "accountId": "a-banco",
+        "goalId": "g-emergencia"
+      },
+      {
+        "id": "t6",
+        "kind": "pago_deuda",
+        "date": "2026-10-10",
+        "amount": 260000,
+        "accountId": "a-banco",
+        "debtId": "d-libre",
+        "interestPart": 75000
+      }
+    ],
+    "recurrings": [
+      {
+        "id": "r-nomina",
+        "kind": "ingreso",
+        "amount": 1700000,
+        "accountId": "a-banco",
+        "categoryId": "c-salario",
+        "note": "Nómina",
+        "schedule": { "type": "quincenal", "days": [15, 31] },
+        "active": true,
+        "startMonth": "2026-10"
+      },
+      {
+        "id": "r-prima-junio",
+        "kind": "ingreso",
+        "amount": 1700000,
+        "accountId": "a-banco",
+        "categoryId": "c-salario",
+        "note": "Prima de junio",
+        "schedule": { "type": "anual", "month": 6, "day": 30 },
+        "active": true,
+        "startMonth": "2026-10"
+      }
+    ],
+    "recurringSkips": [{ "recurringId": "r-nomina", "month": "2026-09", "day": 30 }],
+    "goals": [
+      {
+        "id": "g-emergencia",
+        "name": "Fondo de emergencia",
+        "target": 6000000,
+        "openingSaved": 1700000,
+        "deadline": "2027-08",
+        "archived": false
+      }
+    ],
+    "debts": [
+      {
+        "id": "d-visa",
+        "name": "Tarjeta Visa",
+        "type": "tarjeta_credito",
+        "openingBalance": 0,
+        "rateEA": 27,
+        "minPayment": 160000,
+        "archived": false
+      },
+      {
+        "id": "d-libre",
+        "name": "Crédito de libre inversión",
+        "type": "credito",
+        "openingBalance": 4500000,
+        "rateEA": 22,
+        "minPayment": 260000,
+        "archived": false
+      }
+    ],
+    "profile": {
+      "name": "Sebastián",
+      "incomeType": "empleado",
+      "payFrequency": "quincenal",
+      "mainGoal": "deudas",
+      "onboardingDone": true,
+      "firstStepsDone": ["primer-gasto"],
+      "startTab": "deudas"
+    },
+    "settings": {
+      "strategy": "avalancha",
+      "extraPayment": 150000,
+      "lastBackupAt": "2026-10-21",
+      "schemaVersion": 1,
+      "theme": "sistema"
+    }
+  }
+}
