@@ -15,6 +15,7 @@ import s from '../../components/ui.module.css';
 import {
   accountBalance,
   addMonths,
+  backupReminder,
   budgetSummary,
   cardDebt,
   categoriesOf,
@@ -62,19 +63,48 @@ const QUINCENAS = [
   ['2', 'Quincena 2'],
 ] as const;
 
+/** ¿Se ve la tarjeta de Primeros pasos? (ya incluye "Haz tu respaldo"). */
+function showsFirstSteps(data: AppData): boolean {
+  return (
+    data.profile.onboardingDone &&
+    !data.settings.isDemo &&
+    !data.profile.firstStepsDismissed &&
+    !firstSteps(data).every((st) => st.done)
+  );
+}
+
+/** Aviso "Haz tu respaldo" (SPEC 9.1): 30 días sin respaldo, o nunca con movimientos. */
+function BackupBanner() {
+  const { data, today } = useStore();
+  const nav = useNav();
+  const reminder = backupReminder(data, today);
+  if (data.settings.isDemo || !reminder.show || showsFirstSteps(data)) return null;
+  return (
+    <div className={s.banner} role="status">
+      <span>
+        <b>Haz tu respaldo.</b>{' '}
+        {reminder.daysSince === null
+          ? 'Aún no tienes uno.'
+          : `Hace ${reminder.daysSince} días que no lo haces.`}
+      </span>
+      <button type="button" className={`${s.btn} ${s.sm}`} onClick={() => nav.setScreen('ajustes')}>
+        Respaldar
+      </button>
+    </div>
+  );
+}
+
 /** Tarjeta "Primeros pasos" (SPEC 6.1): desaparece al completarse o al ocultarla. */
 function FirstSteps() {
   const { data, actions } = useStore();
   const nav = useNav();
-  if (!data.profile.onboardingDone || data.settings.isDemo || data.profile.firstStepsDismissed) {
-    return null;
-  }
+  if (!showsFirstSteps(data)) return null;
   const steps = firstSteps(data);
-  if (steps.every((st) => st.done)) return null;
   const go: Record<FirstStep['id'], () => void> = {
     'primer-gasto': () => nav.openSheet({ type: 'tx', kind: 'gasto' }),
     presupuesto: () => nav.setScreen('presupuesto'),
     repetido: () => nav.openSheet({ type: 'tx', kind: 'factura' }),
+    respaldo: () => nav.setScreen('ajustes'),
   };
   const done = steps.filter((st) => st.done).length;
   return (
@@ -127,6 +157,7 @@ export function Inicio() {
   return (
     <>
       <ScreenTop title={data.profile.name ? `Hola, ${data.profile.name}` : 'Mis finanzas'} />
+      <BackupBanner />
       <FirstSteps />
       <Segmented label="Período" options={PERIODS} value={nav.period} onChange={nav.setPeriod} />
       <MonthBar

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   accountBalance,
   applyOnboarding,
+  backupReminder,
   budgetSummary,
   createDefaultData,
   debtBalance,
@@ -235,12 +236,36 @@ describe('montos sugeridos', () => {
 describe('primeros pasos (SPEC 6.1)', () => {
   it('se cumplen con los datos de la persona', () => {
     const data = run(answers());
-    expect(firstSteps(data).map((s) => s.done)).toEqual([false, false, false]);
+    expect(firstSteps(data).map((s) => s.done)).toEqual([false, false, false, false]);
     data.transactions.push(
       tx({ kind: 'gasto', date: TODAY, amount: 1, accountId: 'a', categoryId: 'c' }),
     );
     data.categories[10]!.budget = 100_000;
     data.recurrings.push({ ...data.recurrings[0]!, id: 'r-gasto', kind: 'factura' });
-    expect(firstSteps(data).map((s) => s.done)).toEqual([true, true, true]);
+    data.settings.lastBackupAt = TODAY;
+    expect(firstSteps(data).map((s) => s.done)).toEqual([true, true, true, true]);
+  });
+});
+
+describe('recordatorio de respaldo (SPEC 9.1)', () => {
+  const settings = createDefaultData().settings;
+  const one = [tx({ kind: 'gasto', date: TODAY, amount: 1, accountId: 'a' })];
+
+  it('sin movimientos y sin respaldo, no molesta', () => {
+    expect(backupReminder({ settings, transactions: [] }, TODAY)).toEqual({
+      show: false,
+      daysSince: null,
+    });
+  });
+
+  it('con movimientos y nunca respaldado, avisa', () => {
+    expect(backupReminder({ settings, transactions: one }, TODAY).show).toBe(true);
+  });
+
+  it('avisa a los 30 días del último respaldo, no antes', () => {
+    const at = (last: string) =>
+      backupReminder({ settings: { ...settings, lastBackupAt: last }, transactions: one }, TODAY);
+    expect(at('2026-09-22')).toEqual({ show: false, daysSince: 29 });
+    expect(at('2026-09-21')).toEqual({ show: true, daysSince: 30 });
   });
 });

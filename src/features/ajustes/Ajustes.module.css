@@ -52,6 +52,20 @@
   }
 }
 
+.restore {
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.restore p {
+  margin: 0;
+}
+
 .newAccount {
   display: flex;
   flex-direction: column;

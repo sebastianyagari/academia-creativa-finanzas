@@ -12,7 +12,14 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { FinanzasDB, isInitialized, loadAll, replaceAll, repo } from '../db';
+import {
+  FinanzasDB,
+  isInitialized,
+  loadAll,
+  replaceAll,
+  repo,
+  restoreBackup as restoreInDb,
+} from '../db';
 import { rulesFor } from '../rules';
 import {
   applyOnboarding,
@@ -60,9 +67,18 @@ export interface Actions {
   loadDemo(): Promise<void>;
   /** Borra todo y deja cuentas y categorías por defecto; conserva el nombre. */
   startFresh(): Promise<void>;
+  /**
+   * Reemplaza todo por un respaldo ya validado (SPEC 9.2). Guarda una copia de lo
+   * anterior para poder deshacer mientras la app siga abierta.
+   */
+  restoreBackup(data: AppData): Promise<void>;
+  /** Vuelve a los datos de antes de restaurar (solo en esta sesión). */
+  undoRestore(): Promise<void>;
 }
 
 interface StoreValue {
+  /** Hay una restauración que se puede deshacer en esta sesión. */
+  canUndoRestore: boolean;
   data: AppData;
   /** Hoy en Colombia, 'YYYY-MM-DD'. */
   today: string;
@@ -102,6 +118,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [today, setToday] = useState(() => todayInColombia());
+  // Copia de los datos de antes de restaurar un respaldo, para "Deshacer" (SPEC 9.2).
+  const [beforeRestore, setBeforeRestore] = useState<AppData | null>(null);
 
   // "Hoy" se recalcula al volver a la app (puede quedar abierta de un día para otro).
   useEffect(() => {
@@ -186,14 +204,31 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             settings: { ...fresh.settings, theme: data.settings.theme },
           });
         }),
+      restoreBackup: async (backup) => {
+        const previous = await run((db) => restoreInDb(db, backup));
+        setBeforeRestore(previous);
+      },
+      undoRestore: async () => {
+        if (!beforeRestore) return;
+        await run((db) => replaceAll(db, beforeRestore));
+        setBeforeRestore(null);
+      },
     };
-  }, [data, run]);
+  }, [data, run, beforeRestore]);
 
   if (error) return <p role="alert">{error}</p>;
   if (!data || !actions) return null;
 
   return (
-    <StoreContext.Provider value={{ data, today, currentMonth: monthOf(today), actions }}>
+    <StoreContext.Provider
+      value={{
+        data,
+        today,
+        currentMonth: monthOf(today),
+        actions,
+        canUndoRestore: beforeRestore !== null,
+      }}
+    >
       {children}
     </StoreContext.Provider>
   );

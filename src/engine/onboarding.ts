@@ -351,15 +351,12 @@ export function suggestedGoal(
 }
 
 export interface FirstStep {
-  id: 'primer-gasto' | 'presupuesto' | 'repetido';
+  id: 'primer-gasto' | 'presupuesto' | 'repetido' | 'respaldo';
   label: string;
   done: boolean;
 }
 
-/**
- * "Primeros pasos" (SPEC 6.1), calculados desde los datos. El paso del respaldo
- * se agrega en la Fase 5, cuando exista el respaldo en archivo.
- */
+/** "Primeros pasos" (SPEC 6.1), calculados desde los datos. */
 export function firstSteps(data: AppData): FirstStep[] {
   return [
     {
@@ -378,5 +375,24 @@ export function firstSteps(data: AppData): FirstStep[] {
       // Los ingresos que crea el onboarding no cuentan: el paso es activar uno propio.
       done: data.recurrings.some((r) => r.kind !== 'ingreso'),
     },
+    {
+      id: 'respaldo',
+      label: 'Haz tu respaldo',
+      done: Boolean(data.settings.lastBackupAt),
+    },
   ];
+}
+
+/**
+ * Aviso "Haz tu respaldo" en Inicio (SPEC 9.1): si pasaron 30 días desde el
+ * último, o si nunca se ha hecho y ya hay movimientos.
+ */
+export function backupReminder(
+  data: Pick<AppData, 'settings' | 'transactions'>,
+  today: string,
+): { show: boolean; daysSince: number | null } {
+  const last = data.settings.lastBackupAt;
+  if (!last) return { show: data.transactions.length > 0, daysSince: null };
+  const days = Math.round((Date.parse(today) - Date.parse(last)) / 86_400_000);
+  return { show: days >= 30, daysSince: days };
 }
