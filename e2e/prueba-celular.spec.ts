@@ -57,6 +57,8 @@ test('se puede escribir el presupuesto de una categoría y queda guardado', asyn
   await field.pressSequentially('150000');
   await expect(field).toHaveValue('150.000');
   await field.press('Enter');
+  // Espera a que quede guardado (la barra de Ropa ya muestra el presupuesto) antes de recargar.
+  await expect(card(page, 'Gastos').getByText(/de \$ 150\.000$/)).toBeVisible();
   await page.reload();
   await tab(page, 'Presupuesto');
   await expect(page.getByLabel('Presupuesto de Ropa')).toHaveValue('150.000');

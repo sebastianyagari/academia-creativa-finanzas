@@ -83,14 +83,14 @@ test('primeros pasos: avanzan con los datos y se pueden ocultar', async ({ page 
   await page.goto('/');
   await page.getByRole('button', { name: 'Saltar y empezar sin configurar' }).click();
   const steps = page.getByRole('region', { name: 'Primeros pasos' });
-  await expect(steps).toContainText('0 de 3');
+  await expect(steps).toContainText('0 de 4');
 
   await page.getByRole('button', { name: 'Registrar movimiento' }).click();
   const sheet = page.getByRole('dialog', { name: 'Registrar movimiento' });
   await sheet.getByLabel('Monto').fill('20000');
   await sheet.getByLabel('Categoría').selectOption({ label: 'Mercado' });
   await sheet.getByRole('button', { name: 'Guardar' }).click();
-  await expect(steps).toContainText('1 de 3');
+  await expect(steps).toContainText('1 de 4');
 
   await steps.getByRole('button', { name: 'Ocultar primeros pasos' }).click();
   await expect(steps).toBeHidden();
