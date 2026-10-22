@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
+import { openDemo } from './helpers';
 
 test('la app abre en Inicio con la navegación de 5 pestañas', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   await expect(page).toHaveTitle('Academia Creativa Finanzas');
   await expect(page.getByRole('heading', { level: 1, name: 'Mis finanzas' })).toBeVisible();
 
@@ -12,7 +13,7 @@ test('la app abre en Inicio con la navegación de 5 pestañas', async ({ page })
 });
 
 test('cambiar de pestaña cambia el título y marca la pestaña activa', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   const nav = page.getByRole('navigation', { name: 'Secciones' });
   await nav.getByRole('button', { name: 'Deudas' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Deudas' })).toBeVisible();
@@ -21,7 +22,7 @@ test('cambiar de pestaña cambia el título y marca la pestaña activa', async (
 
 test('no hay scroll horizontal a 360 px', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
-  await page.goto('/');
+  await openDemo(page);
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
@@ -38,7 +39,7 @@ test('no hay scroll horizontal a 360 px', async ({ page }) => {
 });
 
 test('la página no se indexa en buscadores', async ({ page, request }) => {
-  await page.goto('/');
+  await openDemo(page);
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
   const robots = await request.get('/robots.txt');
   expect(await robots.text()).toContain('Disallow: /');
@@ -48,7 +49,7 @@ test.describe('modo oscuro', () => {
   test.use({ colorScheme: 'dark' });
 
   test('usa el fondo oscuro de marca y el logo blanco', async ({ page }) => {
-    await page.goto('/');
+    await openDemo(page);
     const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     expect(bg).toBe('rgb(20, 13, 27)');
     await expect(page.locator('img[src$="isotipo-blanco.svg"]')).toBeVisible();

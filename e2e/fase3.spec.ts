@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { openDemo } from './helpers';
 
 // Cada prueba abre un navegador limpio con los datos de ejemplo.
 
@@ -20,7 +21,7 @@ async function openRegister(page: Page) {
 test('una transferencia mueve saldo entre cuentas sin cambiar los totales (SPEC 4.2)', async ({
   page,
 }) => {
-  await page.goto('/');
+  await openDemo(page);
   await page.getByRole('button', { name: 'Mes', exact: true }).click();
   const hero = page.locator('section', { hasText: 'Te queda en' });
   const before = await hero.innerText();
@@ -42,7 +43,7 @@ test('una transferencia mueve saldo entre cuentas sin cambiar los totales (SPEC 
 test('tarjeta de crédito: crear, comprar y pagar con transferencia (SPEC 4.3)', async ({
   page,
 }) => {
-  await page.goto('/');
+  await openDemo(page);
   await page.getByRole('button', { name: 'Ajustes' }).click();
   await page.getByLabel('Nombre de la nueva cuenta').fill('Visa Prueba');
   await page.getByLabel('Tipo de la nueva cuenta').selectOption({ label: 'Tarjeta de crédito' });
@@ -74,7 +75,7 @@ test('tarjeta de crédito: crear, comprar y pagar con transferencia (SPEC 4.3)',
 });
 
 test('con tarjeta no se pueden registrar ingresos', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   const sheet = await openRegister(page);
   await sheet.getByRole('button', { name: 'Ingreso' }).click();
   const options = await sheet.getByLabel('Entra a').locator('option').allInnerTexts();
@@ -84,7 +85,7 @@ test('con tarjeta no se pueden registrar ingresos', async ({ page }) => {
 test('repetir cada mes crea un pendiente que se registra con un toque (SPEC 5.4)', async ({
   page,
 }) => {
-  await page.goto('/');
+  await openDemo(page);
   const sheet = await openRegister(page);
   await sheet.getByLabel('Monto').fill('90000');
   await sheet.getByLabel('Categoría').selectOption({ label: 'Mascotas' });
@@ -110,7 +111,7 @@ test('repetir cada mes crea un pendiente que se registra con un toque (SPEC 5.4)
 });
 
 test('omitir un pendiente este mes', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   await tab(page, 'Movimientos');
   await page.getByRole('button', { name: 'Siguiente' }).click();
   const pending = card(page, 'Pendientes del mes');
@@ -122,7 +123,7 @@ test('omitir un pendiente este mes', async ({ page }) => {
 });
 
 test('crear una categoría sin salir del registro (SPEC 6.3)', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   const sheet = await openRegister(page);
   await sheet.getByLabel('Monto').fill('60000');
   await sheet.getByLabel('Categoría').selectOption({ label: '+ Crear categoría' });
@@ -143,7 +144,7 @@ test('crear una categoría sin salir del registro (SPEC 6.3)', async ({ page }) 
 });
 
 test('búsqueda sin tildes y filtros (SPEC 6.4)', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   await tab(page, 'Movimientos');
   const search = page.getByLabel('Buscar movimientos');
 
@@ -164,7 +165,7 @@ test('búsqueda sin tildes y filtros (SPEC 6.4)', async ({ page }) => {
 });
 
 test('ordenar categorías y cuentas (Anexo D.23)', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   await tab(page, 'Presupuesto');
   const ingresos = card(page, 'Ingresos');
   await ingresos.getByRole('button', { name: 'Ordenar Ingresos' }).click();

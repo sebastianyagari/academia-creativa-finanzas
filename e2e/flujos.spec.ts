@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { openDemo } from './helpers';
 
 // Cada prueba abre un navegador limpio: la app arranca con los datos de ejemplo.
 
@@ -18,7 +19,7 @@ async function registerExpense(page: Page, amount: string, note: string) {
 }
 
 test('registrar, editar y eliminar un gasto (SPEC 14)', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   await registerExpense(page, '45000', 'Prueba e2e');
 
   await tab(page, 'Movimientos');
@@ -44,7 +45,7 @@ test('registrar, editar y eliminar un gasto (SPEC 14)', async ({ page }) => {
 });
 
 test('el registro muestra errores claros y no guarda', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   await page.getByRole('button', { name: 'Registrar movimiento' }).click();
   const sheet = page.getByRole('dialog', { name: 'Registrar movimiento' });
   // La app propone la última categoría usada; se deja vacía a propósito.
@@ -56,7 +57,7 @@ test('el registro muestra errores claros y no guarda', async ({ page }) => {
 });
 
 test('los datos siguen ahí después de recargar', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   await registerExpense(page, '12345', 'Persiste');
   await page.reload();
   await tab(page, 'Movimientos');
@@ -64,7 +65,7 @@ test('los datos siguen ahí después de recargar', async ({ page }) => {
 });
 
 test('un gasto cambia el saldo de la cuenta y el patrimonio', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   await page.getByRole('button', { name: 'Mes', exact: true }).click();
   const accounts = page.locator('section', {
     has: page.getByRole('heading', { name: 'Cuentas y patrimonio' }),
@@ -75,7 +76,7 @@ test('un gasto cambia el saldo de la cuenta y el patrimonio', async ({ page }) =
 });
 
 test('cambiar de período: Mes, 6 meses y Año', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   // Con datos de más de un mes, Inicio abre en 6 meses (Anexo D.17).
   await expect(page.getByText('Balance de los últimos 6 meses')).toBeVisible();
   await page.getByRole('button', { name: 'Año', exact: true }).click();
@@ -86,10 +87,15 @@ test('cambiar de período: Mes, 6 meses y Año', async ({ page }) => {
 });
 
 test('"Empezar con mis datos" borra el ejemplo tras confirmar', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   await expect(page.getByText('Datos de ejemplo.')).toBeVisible();
   await page.getByRole('button', { name: 'Empezar con mis datos' }).click();
   await page.getByRole('button', { name: 'Sí, borrar el ejemplo' }).click();
+  // Sin el ejemplo, arranca la configuración inicial (Fase 4); aquí se salta.
+  await expect(
+    page.getByRole('heading', { name: 'Organiza tu plata en dos minutos' }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Saltar y empezar sin configurar' }).click();
   await expect(page.getByText('Datos de ejemplo.')).toBeHidden();
   await tab(page, 'Movimientos');
   await expect(page.getByText(/No hay movimientos en/)).toBeVisible();
@@ -98,7 +104,7 @@ test('"Empezar con mis datos" borra el ejemplo tras confirmar', async ({ page })
 });
 
 test('aportar a una meta suma a lo ahorrado', async ({ page }) => {
-  await page.goto('/');
+  await openDemo(page);
   await tab(page, 'Metas');
   const card = page.locator('section', {
     has: page.getByRole('heading', { name: 'Viaje a Cartagena' }),
