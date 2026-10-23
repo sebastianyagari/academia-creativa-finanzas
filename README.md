@@ -57,7 +57,7 @@ Configuración del proyecto en Cloudflare Pages:
 - Build output directory: `dist`
 - Variable de entorno: `NODE_VERSION` = `24`
 
-Dirección definitiva: **`app.academiacreativa.shop`** (subdominio con un registro `CNAME` en GoDaddy). La landing y la página de entrega siguen en Systeme en `academiacreativa.shop`. La dirección de la app no puede cambiar una vez haya clientes (SPEC sección 11). `public/_headers` evita que los buscadores la indexen y hace que las actualizaciones lleguen.
+Dirección definitiva: **`app.academiacreativa.com.es`** (subdominio con un registro `CNAME` en GoDaddy). La landing y la página de entrega siguen en Systeme en `academiacreativa.com.es`. La dirección de la app no puede cambiar una vez haya clientes (SPEC sección 11). `public/_headers` evita que los buscadores la indexen y hace que las actualizaciones lleguen.
 
 ## Estructura
 
