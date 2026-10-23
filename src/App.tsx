@@ -1,6 +1,7 @@
 import { BottomNav } from './components/BottomNav';
 import { Icon } from './components/Icon';
 import { ToastProvider } from './components/Toast';
+import { UpdatePrompt } from './components/UpdatePrompt';
 import { Ajustes } from './features/ajustes/Ajustes';
 import { RecurringSheet } from './features/ajustes/RecurringSheet';
 import { DebtSheet } from './features/deudas/DebtSheet';
@@ -24,6 +25,7 @@ export function App() {
       <NavProvider>
         <ToastProvider>
           <Shell />
+          <UpdatePrompt />
         </ToastProvider>
       </NavProvider>
     </StoreProvider>

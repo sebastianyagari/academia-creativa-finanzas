@@ -9,6 +9,7 @@ import { useNav } from '../../state/nav';
 import { useStore } from '../../state/store';
 import { Accounts } from './Accounts';
 import { Backup } from './Backup';
+import { InstallGuide } from '../instalar/InstallGuide';
 import a from './Ajustes.module.css';
 import { Recurrings } from './Recurrings';
 
@@ -125,6 +126,7 @@ export function Ajustes() {
             onChange={(theme) => void actions.updateSettings({ theme })}
           />
         </Card>
+        <InstallGuide />
         <Backup />
         <Accounts />
         <Recurrings />

@@ -1,7 +1,7 @@
 {
   "name": "academia-creativa-finanzas",
   "private": true,
-  "version": "0.4.1",
+  "version": "0.5.0",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -26,6 +26,7 @@
     "exceljs": "^4.4.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "workbox-window": "^7.4.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -47,6 +48,7 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.0",
     "vite": "^8.3.5",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.0.5"
   }
 }

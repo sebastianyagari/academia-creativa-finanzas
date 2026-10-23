@@ -45,6 +45,7 @@ import {
 } from '../../engine';
 import { useNav, type QuincenaView } from '../../state/nav';
 import { useStore } from '../../state/store';
+import { InstallBanner } from '../instalar/InstallBanner';
 import { Pendientes } from '../registrar/Pendientes';
 import { ScreenTop } from '../shared/ScreenTop';
 import f from './FirstSteps.module.css';
@@ -158,6 +159,7 @@ export function Inicio() {
     <>
       <ScreenTop title={data.profile.name ? `Hola, ${data.profile.name}` : 'Mis finanzas'} />
       <BackupBanner />
+      {!data.settings.isDemo && <InstallBanner />}
       <FirstSteps />
       <Segmented label="Período" options={PERIODS} value={nav.period} onChange={nav.setPeriod} />
       <MonthBar
