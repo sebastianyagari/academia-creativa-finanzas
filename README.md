@@ -48,7 +48,16 @@ La CI de GitHub Actions (`.github/workflows/ci.yml`) corre todo esto en cada cam
 npm run build
 ```
 
-Genera la carpeta `dist/`, que se publica en Cloudflare Pages o Netlify. La dirección web no puede cambiar una vez haya clientes (SPEC sección 11). La configuración de publicación se completa en la Fase 7.
+Genera la carpeta `dist/`. Se publica en **Cloudflare Pages** conectado a este repositorio de GitHub: cada cambio en `main` se publica solo.
+
+Configuración del proyecto en Cloudflare Pages:
+
+- Framework preset: **None** (o Vite)
+- Build command: `npm run build`
+- Build output directory: `dist`
+- Variable de entorno: `NODE_VERSION` = `24`
+
+Dirección definitiva: **`app.academiacreativa.shop`** (subdominio con un registro `CNAME` en GoDaddy). La landing y la página de entrega siguen en Systeme en `academiacreativa.shop`. La dirección de la app no puede cambiar una vez haya clientes (SPEC sección 11). `public/_headers` evita que los buscadores la indexen y hace que las actualizaciones lleguen.
 
 ## Estructura
 
