@@ -12,3 +12,6 @@ Thumbs.db
 
 # Configuración local del entorno de Claude
 .claude/launch.json
+
+# Archivos temporales de Wrangler (Cloudflare)
+.wrangler/
