@@ -85,7 +85,7 @@ Es una recomendación. Si Claude Code ve una razón fuerte para cambiar algo, de
 | PWA | `vite-plugin-pwa` (Workbox) | Instalable, offline, aviso de actualización |
 | Excel | ExcelJS o SheetJS cargado solo al exportar (carga diferida) | No pesa en el arranque |
 | Pruebas | Vitest (engine y migraciones) + Playwright (flujos clave) | |
-| Hosting | Cloudflare Pages o Netlify, con dominio propio | Gratis para este tamaño; la **dirección no debe cambiar nunca** (ver sección 11) |
+| Hosting | Cloudflare (Workers con archivos estáticos), con dominio propio | Gratis para este tamaño; la **dirección no debe cambiar nunca** (ver sección 11) |
 
 Estructura sugerida:
 
@@ -518,7 +518,7 @@ Archivo `.xlsx` con hojas: **Movimientos**, **Resumen por mes**, **Presupuesto**
 - **Aviso de actualización:** "Hay una versión nueva. Toca para actualizar." Al actualizar se conservan los datos.
 - Guía de instalación breve dentro de la app para Android (Chrome) e iPhone (Safari > Compartir > Añadir a pantalla de inicio).
 - Etiqueta `noindex` y `robots.txt` que bloquee buscadores en la v1 (ver sección 12).
-- Despliegue en Cloudflare Pages o Netlify, con dominio propio y HTTPS.
+- Despliegue en Cloudflare (Workers con archivos estáticos), con dominio propio y HTTPS.
 
 ---
 
@@ -717,5 +717,5 @@ Tomadas con Sebastián antes de la Fase 0. Cuando una decisión cambia una secci
 29. El almacenamiento persistente (`navigator.storage.persist()`) se pide al terminar el onboarding (SPEC 9.4); el estado se mostrará en Ajustes en la Fase 5.
 30. A partir de la prueba en celular: la categoría "Vivienda o arriendo" se agrega también en Gastos (primera de la lista), además de "Arriendo o cuota de vivienda" en Facturas, para quien registra el arriendo como gasto. La de Facturas sigue siendo la que tiene día de vencimiento y aparece en "Facturas del mes".
 31. Respaldo adelantado de la Fase 5 a pedido de Sebastián: en Ajustes, "Respaldo de tus datos" con Descargar respaldo (JSON de la SPEC 9.1), Restaurar (vista previa, doble confirmación y "Deshacer la restauración" mientras la app siga abierta) y Exportar a Excel (ExcelJS, cargado solo al exportar). El aviso "Haz tu respaldo" en Inicio no se muestra mientras se vea la tarjeta de Primeros pasos, que ya incluye ese paso.
-32. Publicación: la app vive en Cloudflare Pages (gratis, conectado al repositorio de GitHub) en **`app.academiacreativa.com.es`**; el dominio está en GoDaddy y se conecta con un registro `CNAME`. La landing y la página de entrega siguen en Systeme en `academiacreativa.com.es`, con el botón hacia la app. Systeme no sirve para alojar la app: no permite publicar el service worker ni el manifiesto en la raíz del dominio.
+32. Publicación: la app vive en Cloudflare Workers con archivos estáticos (gratis, conectado al repositorio de GitHub con Workers Builds: cada cambio en `main` se publica solo; configuración en `wrangler.jsonc`) en **`app.academiacreativa.com.es`**. El dominio se compró en GoDaddy, pero sus nameservers apuntan a Cloudflare, así que los registros DNS se administran en Cloudflare; el subdominio `app` está conectado como dominio propio del Worker. La landing y la página de entrega siguen en Systeme en `academiacreativa.com.es`, con el botón hacia la app (sus registros también se crean en Cloudflare). Systeme no sirve para alojar la app: no permite publicar el service worker ni el manifiesto en la raíz del dominio.
 

@@ -48,16 +48,15 @@ La CI de GitHub Actions (`.github/workflows/ci.yml`) corre todo esto en cada cam
 npm run build
 ```
 
-Genera la carpeta `dist/`. Se publica en **Cloudflare Pages** conectado a este repositorio de GitHub: cada cambio en `main` se publica solo.
+Genera la carpeta `dist/`. Se publica en **Cloudflare Workers** (archivos estáticos) conectado a este repositorio de GitHub con Workers Builds: cada cambio en `main` se publica solo. La configuración está en `wrangler.jsonc`.
 
-Configuración del proyecto en Cloudflare Pages:
+Configuración del proyecto en Cloudflare (Workers & Pages → `academia-creativa-finanzas` → Settings → Build):
 
-- Framework preset: **None** (o Vite)
 - Build command: `npm run build`
-- Build output directory: `dist`
+- Deploy command: `npx wrangler deploy`
 - Variable de entorno: `NODE_VERSION` = `24`
 
-Dirección definitiva: **`app.academiacreativa.com.es`** (subdominio con un registro `CNAME` en GoDaddy). La landing y la página de entrega siguen en Systeme en `academiacreativa.com.es`. La dirección de la app no puede cambiar una vez haya clientes (SPEC sección 11). `public/_headers` evita que los buscadores la indexen y hace que las actualizaciones lleguen.
+Dirección definitiva: **`app.academiacreativa.com.es`**, agregada en la pestaña Domains del Worker. El dominio se compró en GoDaddy, pero sus nameservers apuntan a Cloudflare: los registros DNS se administran en Cloudflare, no en GoDaddy. La landing y la página de entrega siguen en Systeme en `academiacreativa.com.es` (sus registros también se crean en Cloudflare). La dirección de la app no puede cambiar una vez haya clientes (SPEC sección 11). `public/_headers` evita que los buscadores la indexen y hace que las actualizaciones lleguen.
 
 ## Estructura
 
